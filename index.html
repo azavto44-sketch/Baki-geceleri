@@ -7,9 +7,9 @@
   <style>
     :root {
       --bg: #070911;
-      --panel: rgba(17, 21, 36, 0.88);
+      --panel: rgba(17, 21, 36, 0.9);
       --panel-strong: rgba(23, 29, 49, 0.98);
-      --border: rgba(255, 255, 255, 0.11);
+      --border: rgba(255, 255, 255, 0.12);
       --text: #f3f6ff;
       --muted: #9aa4c4;
       --accent: #ff3b7f;
@@ -35,7 +35,6 @@
 
     .container { max-width: 1140px; margin: 0 auto; padding: 12px; }
 
-    /* Auth Overlay */
     .auth-screen {
       position: fixed; inset: 0; z-index: 1000;
       background: radial-gradient(circle at top, rgba(255,59,127,0.22), rgba(7,9,17,0.98) 60%);
@@ -53,7 +52,7 @@
 
     .auth-tabs {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-      background: rgba(10, 13, 24, 0.8); padding: 5px; border-radius: 14px; margin: 16px 0;
+      background: rgba(10, 13, 24, 0.85); padding: 5px; border-radius: 14px; margin: 16px 0;
     }
     .auth-tab {
       background: transparent; border: none; color: var(--muted);
@@ -76,15 +75,13 @@
     .btn {
       background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border);
       color: var(--text); padding: 10px 14px; border-radius: 12px;
-      font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.15s;
+      font-size: 13px; font-weight: 700; cursor: pointer;
     }
-    .btn:active { transform: scale(0.98); }
     .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #fff; }
     .btn-cyan { background: rgba(34, 229, 255, 0.14); border-color: rgba(34, 229, 255, 0.35); color: var(--cyan); }
     .btn-gold { background: rgba(255, 184, 46, 0.16); border-color: rgba(255, 184, 46, 0.45); color: var(--gold); }
     .btn-danger { background: rgba(255, 77, 94, 0.16); border-color: rgba(255, 77, 94, 0.4); color: var(--danger); }
 
-    /* Topbar */
     .topbar {
       display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
       gap: 10px; background: var(--panel); border: 1px solid var(--border);
@@ -102,7 +99,6 @@
       display: inline-flex; align-items: center; gap: 5px;
     }
 
-    /* Navigation Tabs */
     .nav-tabs {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 8px; margin-bottom: 14px;
@@ -123,11 +119,10 @@
     }
     .panel.active { display: block; }
 
-    /* Discover Cards */
     .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
     .profile-card {
       background: var(--panel-strong); border: 1px solid var(--border);
-      border-radius: 22px; padding: 20px; margin-bottom: 14px; position: relative;
+      border-radius: 22px; padding: 20px; margin-bottom: 14px;
     }
     .avatar-circle {
       width: 78px; height: 78px; border-radius: 22px;
@@ -143,9 +138,7 @@
     .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
     .tag { background: rgba(255,255,255,0.07); color: var(--muted); font-size: 12px; padding: 4px 10px; border-radius: 999px; }
 
-    .action-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px;
-    }
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
 
     .match-card {
       display: flex; align-items: center; justify-content: space-between;
@@ -153,34 +146,23 @@
       padding: 10px 12px; border-radius: 14px; margin-top: 8px;
     }
 
-    /* Voice Stage Bar */
     .voice-bar {
       background: linear-gradient(135deg, rgba(34, 229, 255, 0.1), rgba(108, 99, 255, 0.14));
       border: 1px solid rgba(34, 229, 255, 0.3);
       border-radius: 18px; padding: 14px; margin-bottom: 14px;
     }
-    .voice-speakers {
-      display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
-    }
+    .voice-speakers { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
     .speaker-chip {
       background: var(--panel-strong); border: 1px solid var(--border);
       padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
       display: inline-flex; align-items: center; gap: 6px;
     }
-    .speaker-chip.speaking {
-      border-color: var(--success);
-      box-shadow: 0 0 12px rgba(34, 211, 138, 0.45);
-    }
+    .speaker-chip.speaking { border-color: var(--success); }
     .wave {
       display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-      background: var(--success); animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(0.9); opacity: 0.6; }
-      50% { transform: scale(1.35); opacity: 1; }
+      background: var(--success);
     }
 
-    /* Bottle Game */
     .circle-stage {
       position: relative; width: 290px; height: 290px; max-width: 100%;
       margin: 12px auto; border-radius: 50%;
@@ -196,7 +178,6 @@
     .seat-node.selected { border-color: var(--cyan); color: var(--cyan); }
     .bottle-el { font-size: 46px; transition: transform 2.5s cubic-bezier(0.16, 0.9, 0.2, 1); }
 
-    /* Chat */
     .room-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
     .room-chip {
       padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border);
@@ -211,14 +192,12 @@
     .msg-meta { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
     .chat-input-row { display: flex; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
 
-    /* Wallet & Hearts Grid */
     .pkg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
     .pkg-card {
       background: var(--panel-strong); border: 1px solid var(--border);
       border-radius: 16px; padding: 14px; text-align: center;
     }
 
-    /* Admin Table / List */
     .admin-box {
       background: rgba(10, 13, 24, 0.75); border: 1px solid var(--border);
       border-radius: 16px; padding: 14px; margin-top: 12px;
@@ -233,49 +212,44 @@
       position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
       background: var(--panel-strong); border: 1px solid var(--cyan);
       color: #fff; padding: 10px 16px; border-radius: 12px; z-index: 2000;
-      display: none; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: none; font-size: 13px;
     }
     .toast.show { display: block; }
   </style>
 </head>
 <body>
 
-  <!-- AUTH SCREEN (GİRİŞ / QEYDİYYAT) -->
+  <!-- AUTH SCREEN -->
   <div class="auth-screen" id="authScreen">
     <div class="auth-card">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span class="badge-20">20+ TANIŞLIQ & SƏSLİ ODAQ</span>
+        <span class="badge-20">20+ TANIŞLIQ & SƏSLİ OTAQ</span>
         <span style="font-size:12px;color:var(--muted);">Bakı Gecələri</span>
       </div>
       <h2 style="margin-top:10px;">Xoş Gəldin!</h2>
       <p style="font-size:13px;color:var(--muted);">Davam etmək üçün hesabına daxil ol və ya yeni profil yarat.</p>
 
       <div class="auth-tabs">
-        <button class="auth-tab active" id="showLoginTab">Giriş Et</button>
-        <button class="auth-tab" id="showRegisterTab">Qeydiyyat</button>
+        <button type="button" class="auth-tab active" id="showLoginTab">Giriş Et</button>
+        <button type="button" class="auth-tab" id="showRegisterTab">Qeydiyyat</button>
       </div>
 
-      <!-- Login Form -->
       <div id="loginForm">
         <div class="field">
           <label>İstifadəçi adı və ya E-poçt</label>
-          <input type="text" id="loginUser" placeholder="Məs: Orxan və ya admin" />
+          <input type="text" id="loginUser" placeholder="Adını və ya e-poçtunu yaz" autocomplete="username" />
         </div>
         <div class="field">
           <label>Şifrə</label>
-          <input type="password" id="loginPass" placeholder="••••••" />
+          <input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" />
         </div>
-        <button class="btn btn-primary" id="loginBtn" style="width:100%;margin-top:4px;">Daxil Ol</button>
-        <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">
-          Admin girişi üçün: <strong>admin</strong> / şifrə: <strong>admin2026</strong>
-        </p>
+        <button type="button" class="btn btn-primary" id="loginBtn" style="width:100%;margin-top:4px;">Daxil Ol</button>
       </div>
 
-      <!-- Register Form -->
       <div id="registerForm" style="display:none;">
         <div class="field">
           <label>Ad / Ləqəb</label>
-          <input type="text" id="regName" placeholder="Adını yaz" />
+          <input type="text" id="regName" placeholder="Adını yaz" autocomplete="name" />
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <div class="field">
@@ -301,9 +275,9 @@
         </div>
         <div class="field">
           <label>Şifrə təyin et</label>
-          <input type="password" id="regPass" placeholder="Minimum 4 simvol" />
+          <input type="password" id="regPass" placeholder="Minimum 4 simvol" autocomplete="new-password" />
         </div>
-        <button class="btn btn-primary" id="registerBtn" style="width:100%;">Qeydiyyatı Tamamla (+2 Pulsuz Ürək)</button>
+        <button type="button" class="btn btn-primary" id="registerBtn" style="width:100%;">Qeydiyyatı Tamamla (+2 Pulsuz Ürək)</button>
       </div>
     </div>
   </div>
@@ -319,20 +293,19 @@
         <span class="pill" id="userBadge">👤 Qonaq</span>
         <span class="pill" style="color:var(--gold);">💰 <span id="balDisplay">0.00</span> AZN</span>
         <span class="pill" style="color:var(--accent);">❤️ <span id="heartsDisplay">2</span> Ürək</span>
-        <button class="btn btn-danger" id="logoutBtn" style="padding:6px 10px;">Çıxış</button>
+        <button type="button" class="btn btn-danger" id="logoutBtn" style="padding:6px 10px;">Çıxış</button>
       </div>
     </header>
 
     <nav class="nav-tabs" id="mainNav">
-      <button class="nav-btn active" data-tab="discover">💫 Kəşf Et</button>
-      <button class="nav-btn" data-tab="bottle">🍾 Butulka 2.0</button>
-      <button class="nav-btn" data-tab="chat">🎙️ Səsli Çat</button>
-      <button class="nav-btn" data-tab="wallet">❤️ Ürəklər & Balans</button>
-      <button class="nav-btn" data-tab="profile">⚙️ Profil</button>
-      <button class="nav-btn" data-tab="admin" id="adminNavBtn" style="display:none;color:var(--gold);">🛡️ Admin Panel</button>
+      <button type="button" class="nav-btn active" data-tab="discover">💫 Kəşf Et</button>
+      <button type="button" class="nav-btn" data-tab="bottle">🍾 Butulka 2.0</button>
+      <button type="button" class="nav-btn" data-tab="chat">🎙️ Səsli Çat</button>
+      <button type="button" class="nav-btn" data-tab="wallet">❤️ Ürəklər & Balans</button>
+      <button type="button" class="nav-btn" data-tab="profile">⚙️ Profil</button>
+      <button type="button" class="nav-btn" data-tab="admin" id="adminNavBtn" style="display:none;color:var(--gold);">🛡️ Admin Panel</button>
     </nav>
 
-    <!-- 1. DISCOVER (TANIŞLIQ) -->
     <section id="discover" class="panel active">
       <div class="filters">
         <select id="cityFilter">
@@ -357,7 +330,6 @@
       </div>
     </section>
 
-    <!-- 2. BOTTLE GAME + LIVE VOICE -->
     <section id="bottle" class="panel">
       <div class="voice-bar">
         <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
@@ -366,8 +338,8 @@
             <div style="font-size:12px;color:var(--muted);" id="bottleVoiceStatus">Mikrofon bağlıdır. Danışmaq üçün qoşul!</div>
           </div>
           <div style="display:flex;gap:6px;">
-            <button class="btn btn-cyan" id="toggleBottleMicBtn">🎤 Mikrofonu Aç</button>
-            <button class="btn" id="testVoiceBeepBtn">🔊 Səs Testi</button>
+            <button type="button" class="btn btn-cyan" id="toggleBottleMicBtn">🎤 Mikrofonu Aç</button>
+            <button type="button" class="btn" id="testVoiceBeepBtn">🔊 Səs Testi</button>
           </div>
         </div>
         <div class="voice-speakers" id="bottleSpeakersList"></div>
@@ -388,7 +360,7 @@
       </div>
 
       <div style="text-align:center;">
-        <button class="btn btn-primary" id="spinBtn">🍾 Şüşəni Fırlat</button>
+        <button type="button" class="btn btn-primary" id="spinBtn">🍾 Şüşəni Fırlat</button>
       </div>
 
       <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:16px;padding:14px;margin-top:14px;">
@@ -396,13 +368,12 @@
         <h4 id="taskTarget" style="margin-top:8px;">Seçilən iştirakçı: —</h4>
         <p id="taskText" style="font-size:14px;color:var(--muted);margin-top:4px;">Şüşəni fırlat, sual düşsün və səsli otaqda cavabla!</p>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-cyan" id="sendTaskToChatBtn">Çata Göndər</button>
-          <button class="btn btn-gold" id="giftBottleTargetBtn">❤️ Seçilənə Ürək At</button>
+          <button type="button" class="btn btn-cyan" id="sendTaskToChatBtn">Çata Göndər</button>
+          <button type="button" class="btn btn-gold" id="giftBottleTargetBtn">❤️ Seçilənə Ürək At</button>
         </div>
       </div>
     </section>
 
-    <!-- 3. LIVE VOICE & TEXT CHAT -->
     <section id="chat" class="panel">
       <div class="voice-bar">
         <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
@@ -410,28 +381,27 @@
             <strong>🎧 Otaq Səsli Efiri (<span id="activeVoiceRoomName">Ümumi</span>)</strong>
             <div style="font-size:12px;color:var(--muted);" id="roomVoiceStatus">Səsli efiri dinləyirsən</div>
           </div>
-          <button class="btn btn-cyan" id="toggleRoomMicBtn">🎤 Efirə Qoşul (Mikrofon)</button>
+          <button type="button" class="btn btn-cyan" id="toggleRoomMicBtn">🎤 Efirə Qoşul (Mikrofon)</button>
         </div>
         <div class="voice-speakers" id="roomSpeakersList"></div>
       </div>
 
       <div class="room-tabs">
-        <button class="room-chip active" data-room="Ümumi"># Ümumi</button>
-        <button class="room-chip" data-room="Gecə Söhbətləri">🌙 Gecə Söhbətləri</button>
-        <button class="room-chip" data-room="VIP Lounge">👑 VIP Lounge</button>
+        <button type="button" class="room-chip active" data-room="Ümumi"># Ümumi</button>
+        <button type="button" class="room-chip" data-room="Gecə Söhbətləri">🌙 Gecə Söhbətləri</button>
+        <button type="button" class="room-chip" data-room="VIP Lounge">👑 VIP Lounge</button>
       </div>
 
       <div class="chat-box">
         <div class="messages" id="messagesList"></div>
         <div class="chat-input-row">
           <input type="text" id="chatInput" placeholder="Mesaj yaz..." />
-          <button class="btn btn-gold" id="chatHeartBtn" title="Otağa Ürək Göndər">❤️</button>
-          <button class="btn btn-primary" id="sendMsgBtn">Göndər</button>
+          <button type="button" class="btn btn-gold" id="chatHeartBtn" title="Otağa Ürək Göndər">❤️</button>
+          <button type="button" class="btn btn-primary" id="sendMsgBtn">Göndər</button>
         </div>
       </div>
     </section>
 
-    <!-- 4. WALLET & HEARTS (BALANS VƏ ÜRƏKLƏR) -->
     <section id="wallet" class="panel">
       <h2>❤️ Ürəklər və Balans Artımı</h2>
       <p style="font-size:13px;color:var(--muted);margin-top:4px;">
@@ -449,15 +419,26 @@
           </select>
           <input type="text" id="topupNote" placeholder="Çek kodu / Kart son 4 rəqəm" />
         </div>
-        <button class="btn btn-primary" id="submitTopupBtn" style="margin-top:10px;width:100%;">
+        <button type="button" class="btn btn-primary" id="submitTopupBtn" style="margin-top:10px;width:100%;">
           Ödəniş Sorğusu Göndər (Admin Təsdiqli)
         </button>
-        <p style="font-size:11px;color:var(--muted);margin-top:6px;">
-          Sorğu göndərdikdən sonra Admin panelində dərhal görünür və təsdiqlənən kimi balansa oturur.
-        </p>
       </div>
 
       <h4 style="margin-top:16px;">2. Balansla Ürək Paketi Al</h4>
       <div class="pkg-grid">
         <div class="pkg-card">
-      
+          <div style="font-size:28px;">❤️</div>
+          <strong>5 Ürək</strong>
+          <div style="color:var(--gold);font-size:13px;margin:4px 0;">2.00 AZN</div>
+          <button type="button" class="btn btn-cyan buy-heart-btn" data-hearts="5" data-cost="2">Al</button>
+        </div>
+        <div class="pkg-card">
+          <div style="font-size:28px;">💖</div>
+          <strong>15 Ürək</strong>
+          <div style="color:var(--gold);font-size:13px;margin:4px 0;">5.00 AZN</div>
+          <button type="button" class="btn btn-cyan buy-heart-btn" data-hearts="15" data-cost="5">Al</button>
+        </div>
+        <div class="pkg-card">
+          <div style="font-size:28px;">👑❤️</div>
+          <strong>30 Ürək + VIP</strong>
+          <div style="color:var(--gold);font
