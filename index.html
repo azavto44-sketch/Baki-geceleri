@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bakı Gecələri 20+ | Çat, Tanışlıq və Butulka Oyunu 2.0</title>
+  <title>Bakı Gecələri 20+ | Tanışlıq, Canlı Səsli Otaqlar, Butulka 2.0 & VIP</title>
   <style>
     :root {
-      --bg: #080a12;
-      --panel: rgba(18, 22, 38, 0.82);
-      --panel-strong: rgba(24, 30, 50, 0.96);
-      --border: rgba(255, 255, 255, 0.12);
+      --bg: #070911;
+      --panel: rgba(17, 21, 36, 0.88);
+      --panel-strong: rgba(23, 29, 49, 0.98);
+      --border: rgba(255, 255, 255, 0.11);
       --text: #f3f6ff;
-      --muted: #98a2c2;
+      --muted: #9aa4c4;
       --accent: #ff3b7f;
       --accent-2: #6c63ff;
-      --neon-cyan: #22e5ff;
+      --cyan: #22e5ff;
+      --gold: #ffb82e;
       --success: #22d38a;
+      --danger: #ff4d5e;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,230 +25,314 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background:
-        radial-gradient(circle at 15% 10%, rgba(255, 59, 127, 0.18), transparent 40%),
-        radial-gradient(circle at 85% 15%, rgba(108, 99, 255, 0.22), transparent 45%),
+        radial-gradient(circle at 12% 8%, rgba(255, 59, 127, 0.2), transparent 38%),
+        radial-gradient(circle at 88% 12%, rgba(108, 99, 255, 0.22), transparent 42%),
         var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding-bottom: 48px;
+      padding-bottom: 64px;
     }
 
-    .container { max-width: 1120px; margin: 0 auto; padding: 14px; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 12px; }
 
-    .topbar {
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 10px; background: var(--panel); border: 1px solid var(--border);
-      border-radius: 20px; padding: 14px 16px; margin-bottom: 14px;
+    /* Auth Overlay */
+    .auth-screen {
+      position: fixed; inset: 0; z-index: 1000;
+      background: radial-gradient(circle at top, rgba(255,59,127,0.22), rgba(7,9,17,0.98) 60%);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+      overflow-y: auto;
+    }
+    .auth-screen.hidden { display: none; }
+
+    .auth-card {
+      width: 100%; max-width: 440px;
+      background: var(--panel-strong); border: 1px solid var(--border);
+      border-radius: 24px; padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
     }
 
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-badge {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff; font-weight: 800; font-size: 12px; padding: 5px 10px; border-radius: 999px;
+    .auth-tabs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      background: rgba(10, 13, 24, 0.8); padding: 5px; border-radius: 14px; margin: 16px 0;
     }
-    .brand h1 { font-size: 18px; font-weight: 700; }
-
-    .room-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-
-    .room-input {
-      background: rgba(10, 13, 24, 0.9); border: 1px solid var(--border);
-      color: var(--neon-cyan); font-weight: 700; padding: 8px 12px;
-      border-radius: 12px; width: 120px; font-size: 14px;
+    .auth-tab {
+      background: transparent; border: none; color: var(--muted);
+      padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer;
     }
+    .auth-tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+    }
+
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+
+    input, select, textarea {
+      width: 100%; background: rgba(10, 13, 24, 0.92);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 10px 12px; border-radius: 12px; font-size: 14px; outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 
     .btn {
       background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border);
-      color: var(--text); padding: 9px 14px; border-radius: 12px;
-      font-size: 13px; font-weight: 600; cursor: pointer;
+      color: var(--text); padding: 10px 14px; border-radius: 12px;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.15s;
     }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #fff; }
+    .btn-cyan { background: rgba(34, 229, 255, 0.14); border-color: rgba(34, 229, 255, 0.35); color: var(--cyan); }
+    .btn-gold { background: rgba(255, 184, 46, 0.16); border-color: rgba(255, 184, 46, 0.45); color: var(--gold); }
+    .btn-danger { background: rgba(255, 77, 94, 0.16); border-color: rgba(255, 77, 94, 0.4); color: var(--danger); }
 
-    .btn-primary {
+    /* Topbar */
+    .topbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; background: var(--panel); border: 1px solid var(--border);
+      border-radius: 20px; padding: 12px 16px; margin-bottom: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .badge-20 {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      border: none; color: #fff;
+      padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800;
+    }
+    .wallet-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .pill {
+      background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border);
+      padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 5px;
     }
 
-    .btn-cyan {
-      background: rgba(34, 229, 255, 0.14);
-      border-color: rgba(34, 229, 255, 0.35); color: var(--neon-cyan);
-    }
-
-    .status-pill {
-      display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
-      color: var(--muted); background: rgba(255, 255, 255, 0.05);
-      padding: 6px 10px; border-radius: 999px;
-    }
-
-    .dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--success); box-shadow: 0 0 8px var(--success);
-    }
-
-    .tabs {
-      display: grid; grid-template-columns: repeat(2, 1fr);
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 8px; margin-bottom: 14px;
     }
-
-    .tab-btn {
+    .nav-btn {
       background: var(--panel); border: 1px solid var(--border);
-      color: var(--muted); padding: 12px 10px; border-radius: 16px;
-      font-size: 14px; font-weight: 700; cursor: pointer;
+      color: var(--muted); padding: 11px 8px; border-radius: 14px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
     }
-
-    .tab-btn.active {
-      background: linear-gradient(135deg, rgba(255, 59, 127, 0.24), rgba(108, 99, 255, 0.26));
-      border-color: rgba(255, 59, 127, 0.6); color: #fff;
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(255,59,127,0.24), rgba(108,99,255,0.26));
+      border-color: rgba(255,59,127,0.6); color: #fff;
     }
 
     .panel {
       display: none; background: var(--panel); border: 1px solid var(--border);
-      border-radius: 24px; padding: 18px;
+      border-radius: 22px; padding: 16px;
     }
-
     .panel.active { display: block; }
 
-    .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; align-items: center; }
-
-    select, input[type="text"], input[type="number"], textarea {
-      background: rgba(10, 13, 24, 0.9); border: 1px solid var(--border);
-      color: var(--text); padding: 10px 12px; border-radius: 12px; font-size: 14px;
-    }
-
+    /* Discover Cards */
+    .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
     .profile-card {
       background: var(--panel-strong); border: 1px solid var(--border);
-      border-radius: 22px; padding: 20px; margin-bottom: 16px;
+      border-radius: 22px; padding: 20px; margin-bottom: 14px; position: relative;
     }
-
-    .avatar-box {
-      width: 76px; height: 76px; border-radius: 20px;
+    .avatar-circle {
+      width: 78px; height: 78px; border-radius: 22px;
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       display: flex; align-items: center; justify-content: center;
       font-size: 36px; margin-bottom: 12px;
     }
-
-    .profile-name { font-size: 21px; font-weight: 800; }
-
+    .verified-tag {
+      background: rgba(34, 211, 138, 0.16); color: var(--success);
+      border: 1px solid rgba(34, 211, 138, 0.35);
+      font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-left: 6px;
+    }
     .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-    .tag {
-      background: rgba(255, 255, 255, 0.08); color: var(--muted);
-      font-size: 12px; padding: 4px 10px; border-radius: 999px;
+    .tag { background: rgba(255,255,255,0.07); color: var(--muted); font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+
+    .action-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px;
     }
 
-    .swipe-actions {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 8px; margin-top: 14px;
-    }
-
-    .matches-box {
-      background: rgba(10, 13, 24, 0.6); border: 1px solid var(--border);
-      border-radius: 18px; padding: 16px;
-    }
-
-    .match-item {
+    .match-card {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 12px; border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05); margin-top: 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      padding: 10px 12px; border-radius: 14px; margin-top: 8px;
     }
 
+    /* Voice Stage Bar */
+    .voice-bar {
+      background: linear-gradient(135deg, rgba(34, 229, 255, 0.1), rgba(108, 99, 255, 0.14));
+      border: 1px solid rgba(34, 229, 255, 0.3);
+      border-radius: 18px; padding: 14px; margin-bottom: 14px;
+    }
+    .voice-speakers {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
+    }
+    .speaker-chip {
+      background: var(--panel-strong); border: 1px solid var(--border);
+      padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .speaker-chip.speaking {
+      border-color: var(--success);
+      box-shadow: 0 0 12px rgba(34, 211, 138, 0.45);
+    }
+    .wave {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+
+    /* Bottle Game */
     .circle-stage {
-      position: relative; width: 300px; height: 300px; max-width: 100%;
-      margin: 14px auto; border-radius: 50%;
-      background: radial-gradient(circle, rgba(34, 229, 255, 0.12), rgba(108, 99, 255, 0.08));
-      border: 2px dashed rgba(255, 255, 255, 0.18);
+      position: relative; width: 290px; height: 290px; max-width: 100%;
+      margin: 12px auto; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,59,127,0.12), rgba(108,99,255,0.08));
+      border: 2px dashed rgba(255,255,255,0.18);
       display: flex; align-items: center; justify-content: center;
     }
-
     .seat-node {
       position: absolute; transform: translate(-50%, -50%);
       background: var(--panel-strong); border: 1px solid var(--border);
       padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 700;
     }
+    .seat-node.selected { border-color: var(--cyan); color: var(--cyan); }
+    .bottle-el { font-size: 46px; transition: transform 2.5s cubic-bezier(0.16, 0.9, 0.2, 1); }
 
-    .seat-node.selected {
-      border-color: var(--neon-cyan); color: var(--neon-cyan);
-    }
-
-    .bottle-box {
-      font-size: 48px; transition: transform 2.6s cubic-bezier(0.16, 0.9, 0.2, 1);
-      user-select: none;
-    }
-
-    .task-card {
-      background: var(--panel-strong); border: 1px solid var(--border);
-      border-radius: 18px; padding: 16px; margin-top: 14px;
-    }
-
-    .category-pill {
-      display: inline-block; font-size: 12px; font-weight: 700;
-      padding: 4px 10px; border-radius: 999px;
-      background: rgba(255, 59, 127, 0.2); color: #ff85b0; margin-bottom: 8px;
-    }
-
-    .room-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    /* Chat */
+    .room-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
     .room-chip {
       padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.05); color: var(--text); cursor: pointer; font-weight: 600;
+      background: rgba(255,255,255,0.05); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer;
     }
-    .room-chip.active { background: rgba(108, 99, 255, 0.28); border-color: var(--accent-2); }
-
-    .chat-box {
-      background: rgba(10, 13, 24, 0.65); border: 1px solid var(--border);
-      border-radius: 18px; overflow: hidden;
-    }
-
-    .messages {
-      padding: 12px; height: 240px; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-
-    .msg {
-      background: rgba(255, 255, 255, 0.07); padding: 9px 12px;
-      border-radius: 12px; max-width: 85%;
-    }
-    .msg.me {
-      align-self: flex-end;
-      background: linear-gradient(135deg, rgba(255, 59, 127, 0.28), rgba(108, 99, 255, 0.3));
-    }
+    .room-chip.active { background: rgba(108,99,255,0.3); border-color: var(--accent-2); }
+    .chat-box { background: rgba(10,13,24,0.7); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .messages { height: 230px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .msg { background: rgba(255,255,255,0.07); padding: 9px 12px; border-radius: 12px; max-width: 85%; font-size: 14px; }
+    .msg.me { align-self: flex-end; background: linear-gradient(135deg, rgba(255,59,127,0.28), rgba(108,99,255,0.3)); }
+    .msg.heart-gift { border: 1px solid var(--accent); background: rgba(255,59,127,0.18); }
     .msg-meta { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .chat-input-row { display: flex; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
 
-    .chat-input-row {
-      display: flex; gap: 6px; padding: 10px;
-      border-top: 1px solid var(--border); background: rgba(15, 20, 36, 0.95);
+    /* Wallet & Hearts Grid */
+    .pkg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
+    .pkg-card {
+      background: var(--panel-strong); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px; text-align: center;
     }
-    .chat-input-row input { flex: 1; min-width: 0; }
+
+    /* Admin Table / List */
+    .admin-box {
+      background: rgba(10, 13, 24, 0.75); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px; margin-top: 12px;
+    }
+    .admin-row {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 13px;
+    }
 
     .toast {
-      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-      background: var(--panel-strong); border: 1px solid var(--neon-cyan);
-      color: var(--text); padding: 10px 16px; border-radius: 12px;
-      z-index: 999; display: none; font-size: 13px;
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      background: var(--panel-strong); border: 1px solid var(--cyan);
+      color: #fff; padding: 10px 16px; border-radius: 12px; z-index: 2000;
+      display: none; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
     .toast.show { display: block; }
   </style>
 </head>
 <body>
+
+  <!-- AUTH SCREEN (GİRİŞ / QEYDİYYAT) -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="badge-20">20+ TANIŞLIQ & SƏSLİ ODAQ</span>
+        <span style="font-size:12px;color:var(--muted);">Bakı Gecələri</span>
+      </div>
+      <h2 style="margin-top:10px;">Xoş Gəldin!</h2>
+      <p style="font-size:13px;color:var(--muted);">Davam etmək üçün hesabına daxil ol və ya yeni profil yarat.</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="showLoginTab">Giriş Et</button>
+        <button class="auth-tab" id="showRegisterTab">Qeydiyyat</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm">
+        <div class="field">
+          <label>İstifadəçi adı və ya E-poçt</label>
+          <input type="text" id="loginUser" placeholder="Məs: Orxan və ya admin" />
+        </div>
+        <div class="field">
+          <label>Şifrə</label>
+          <input type="password" id="loginPass" placeholder="••••••" />
+        </div>
+        <button class="btn btn-primary" id="loginBtn" style="width:100%;margin-top:4px;">Daxil Ol</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">
+          Admin girişi üçün: <strong>admin</strong> / şifrə: <strong>admin2026</strong>
+        </p>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" style="display:none;">
+        <div class="field">
+          <label>Ad / Ləqəb</label>
+          <input type="text" id="regName" placeholder="Adını yaz" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="field">
+            <label>Yaş (20+)</label>
+            <input type="number" id="regAge" min="20" max="65" value="23" />
+          </div>
+          <div class="field">
+            <label>Cins</label>
+            <select id="regGender">
+              <option value="Kişi">Kişi</option>
+              <option value="Qadın">Qadın</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Şəhər</label>
+          <select id="regCity">
+            <option value="Bakı">Bakı</option>
+            <option value="Gəncə">Gəncə</option>
+            <option value="Sumqayıt">Sumqayıt</option>
+            <option value="Şəki">Şəki</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Şifrə təyin et</label>
+          <input type="password" id="regPass" placeholder="Minimum 4 simvol" />
+        </div>
+        <button class="btn btn-primary" id="registerBtn" style="width:100%;">Qeydiyyatı Tamamla (+2 Pulsuz Ürək)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
   <div class="container">
     <header class="topbar">
       <div class="brand">
-        <span class="brand-badge">20+ GƏNCLƏR</span>
-        <h1>Bakı Gecələri</h1>
+        <span class="badge-20">20+</span>
+        <strong style="font-size:17px;">Bakı Gecələri</strong>
       </div>
-      <div class="room-controls">
-        <span style="font-size:12px;color:var(--muted);">Otaq:</span>
-        <input id="roomCodeInput" class="room-input" type="text" value="#BAKI20" maxlength="16" />
-        <button class="btn btn-cyan" id="joinRoomBtn">Qoşul</button>
-        <button class="btn" id="copyLinkBtn">Linki Kopyala</button>
-        <button class="btn" id="soundToggleBtn">Səs: Açıq</button>
-        <span class="status-pill"><span class="dot"></span>4 onlayn</span>
+      <div class="wallet-bar">
+        <span class="pill" id="userBadge">👤 Qonaq</span>
+        <span class="pill" style="color:var(--gold);">💰 <span id="balDisplay">0.00</span> AZN</span>
+        <span class="pill" style="color:var(--accent);">❤️ <span id="heartsDisplay">2</span> Ürək</span>
+        <button class="btn btn-danger" id="logoutBtn" style="padding:6px 10px;">Çıxış</button>
       </div>
     </header>
 
-    <nav class="tabs">
-      <button class="tab-btn active" data-tab="discover">Kəşf Et</button>
-      <button class="tab-btn" data-tab="bottle">Butulka 2.0</button>
-      <button class="tab-btn" data-tab="chat">Canlı Çat</button>
-      <button class="tab-btn" data-tab="profile">Profil & 20+</button>
+    <nav class="nav-tabs" id="mainNav">
+      <button class="nav-btn active" data-tab="discover">💫 Kəşf Et</button>
+      <button class="nav-btn" data-tab="bottle">🍾 Butulka 2.0</button>
+      <button class="nav-btn" data-tab="chat">🎙️ Səsli Çat</button>
+      <button class="nav-btn" data-tab="wallet">❤️ Ürəklər & Balans</button>
+      <button class="nav-btn" data-tab="profile">⚙️ Profil</button>
+      <button class="nav-btn" data-tab="admin" id="adminNavBtn" style="display:none;color:var(--gold);">🛡️ Admin Panel</button>
     </nav>
 
+    <!-- 1. DISCOVER (TANIŞLIQ) -->
     <section id="discover" class="panel active">
       <div class="filters">
         <select id="cityFilter">
@@ -261,389 +347,117 @@
           <option value="22">22+ Yaş</option>
           <option value="25">25+ Yaş</option>
         </select>
-        <span style="font-size:13px;color:var(--muted);">Reputasiya Xalın: <strong id="repScore" style="color:var(--neon-cyan);">25</strong></span>
       </div>
 
       <div class="profile-card" id="currentProfileCard"></div>
 
-      <div class="matches-box">
-        <h3>Qarşılıqlı Match-lər</h3>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px;">Bəyəndiyin profillər burada görünür və birbaşa çata keçə bilərsən.</p>
+      <div>
+        <h3>Qarşılıqlı Match-lər & Hədiyyə Göndərdiklərin</h3>
         <div id="matchesList"></div>
       </div>
     </section>
 
+    <!-- 2. BOTTLE GAME + LIVE VOICE -->
     <section id="bottle" class="panel">
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;">
-        <div>
-          <h2>Butulka Oyunu 2.0</h2>
-          <p style="font-size:13px;color:var(--muted);">Şüşəni fırlat, iştirakçını seç və sualı cavabla!</p>
+      <div class="voice-bar">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
+          <div>
+            <strong>🎙️ Butulka Masası — Canlı Səsli Otaq</strong>
+            <div style="font-size:12px;color:var(--muted);" id="bottleVoiceStatus">Mikrofon bağlıdır. Danışmaq üçün qoşul!</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-cyan" id="toggleBottleMicBtn">🎤 Mikrofonu Aç</button>
+            <button class="btn" id="testVoiceBeepBtn">🔊 Səs Testi</button>
+          </div>
         </div>
-        <select id="categorySelect">
-          <option value="ALL">Bütün Kateqoriyalar</option>
-          <option value="Səmimi">Səmimi Suallar</option>
+        <div class="voice-speakers" id="bottleSpeakersList"></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <h3>Butulka Oyunu 2.0</h3>
+        <select id="categorySelect" style="width:auto;">
+          <option value="ALL">Bütün Suallar</option>
+          <option value="Səmimi">Səmimi</option>
           <option value="Cəsarət">Cəsarət</option>
           <option value="Flört">Flört</option>
-          <option value="Gülüş">Gülüş</option>
         </select>
       </div>
 
       <div class="circle-stage" id="circleStage">
-        <div class="bottle-box" id="bottleEl">🍾</div>
+        <div class="bottle-el" id="bottleEl">🍾</div>
       </div>
 
       <div style="text-align:center;">
-        <button class="btn btn-primary" id="spinBtn">Şüşəni Fırlat (+10 Xal)</button>
+        <button class="btn btn-primary" id="spinBtn">🍾 Şüşəni Fırlat</button>
       </div>
 
-      <div class="task-card">
-        <span class="category-pill" id="taskCategory">Gözlənilir</span>
-        <h3 id="taskTarget">Seçilən iştirakçı: —</h3>
-        <p id="taskText" style="margin-top:8px;font-size:15px;">Şüşəni fırlatmaq üçün düyməyə bas.</p>
-        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-cyan" id="sendTaskToChatBtn">Çatda Paylaş</button>
-          <button class="btn" id="newTaskBtn">Başqa Sual</button>
+      <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:16px;padding:14px;margin-top:14px;">
+        <span class="pill" id="taskCategory" style="color:var(--accent);">Gözlənilir</span>
+        <h4 id="taskTarget" style="margin-top:8px;">Seçilən iştirakçı: —</h4>
+        <p id="taskText" style="font-size:14px;color:var(--muted);margin-top:4px;">Şüşəni fırlat, sual düşsün və səsli otaqda cavabla!</p>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-cyan" id="sendTaskToChatBtn">Çata Göndər</button>
+          <button class="btn btn-gold" id="giftBottleTargetBtn">❤️ Seçilənə Ürək At</button>
         </div>
       </div>
     </section>
 
+    <!-- 3. LIVE VOICE & TEXT CHAT -->
     <section id="chat" class="panel">
-      <div class="room-list">
+      <div class="voice-bar">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
+          <div>
+            <strong>🎧 Otaq Səsli Efiri (<span id="activeVoiceRoomName">Ümumi</span>)</strong>
+            <div style="font-size:12px;color:var(--muted);" id="roomVoiceStatus">Səsli efiri dinləyirsən</div>
+          </div>
+          <button class="btn btn-cyan" id="toggleRoomMicBtn">🎤 Efirə Qoşul (Mikrofon)</button>
+        </div>
+        <div class="voice-speakers" id="roomSpeakersList"></div>
+      </div>
+
+      <div class="room-tabs">
         <button class="room-chip active" data-room="Ümumi"># Ümumi</button>
-        <button class="room-chip" data-room="Musiqi & Film">Musiqi & Film</button>
-        <button class="room-chip" data-room="Gecə Söhbətləri">Gecə Söhbətləri</button>
-        <button class="btn btn-cyan" id="icebreakerBtn">Buzqıran Sual</button>
+        <button class="room-chip" data-room="Gecə Söhbətləri">🌙 Gecə Söhbətləri</button>
+        <button class="room-chip" data-room="VIP Lounge">👑 VIP Lounge</button>
       </div>
 
       <div class="chat-box">
         <div class="messages" id="messagesList"></div>
         <div class="chat-input-row">
           <input type="text" id="chatInput" placeholder="Mesaj yaz..." />
-          <button class="btn" id="emojiBtn">:)</button>
+          <button class="btn btn-gold" id="chatHeartBtn" title="Otağa Ürək Göndər">❤️</button>
           <button class="btn btn-primary" id="sendMsgBtn">Göndər</button>
         </div>
       </div>
     </section>
 
-    <section id="profile" class="panel">
-      <h2>Profil və 20+ Qaydaları</h2>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Platforma 20 yaşdan yuxarı gənclər üçündür.</p>
-      <div style="display:grid;gap:12px;">
-        <div>
-          <label style="font-size:12px;color:var(--muted);">Ləqəb / Ad</label>
-          <input type="text" id="myNameInput" style="width:100%;" value="Sən" />
+    <!-- 4. WALLET & HEARTS (BALANS VƏ ÜRƏKLƏR) -->
+    <section id="wallet" class="panel">
+      <h2>❤️ Ürəklər və Balans Artımı</h2>
+      <p style="font-size:13px;color:var(--muted);margin-top:4px;">
+        Balans artıraraq <strong>Ürək paketləri</strong> al və bəyəndiyin istifadəçilərə canlı hədiyyə ürək göndər!
+      </p>
+
+      <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:16px;padding:14px;margin-top:12px;">
+        <h4>1. Balansa Pul Yüklə (Ödəniş Sorğusu)</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+          <select id="topupAmount">
+            <option value="5">5 AZN</option>
+            <option value="8" selected>8 AZN</option>
+            <option value="15">15 AZN</option>
+            <option value="30">30 AZN</option>
+          </select>
+          <input type="text" id="topupNote" placeholder="Çek kodu / Kart son 4 rəqəm" />
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div>
-            <label style="font-size:12px;color:var(--muted);">Yaş (20+)</label>
-            <input type="number" id="myAgeInput" style="width:100%;" min="20" max="60" value="23" />
-          </div>
-          <div>
-            <label style="font-size:12px;color:var(--muted);">Şəhər</label>
-            <select id="myCityInput" style="width:100%;">
-              <option value="Bakı">Bakı</option>
-              <option value="Gəncə">Gəncə</option>
-              <option value="Sumqayıt">Sumqayıt</option>
-              <option value="Şəki">Şəki</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label style="font-size:12px;color:var(--muted);">Qısa Bio</label>
-          <textarea id="myBioInput" rows="3" style="width:100%;">Gecə gəzintiləri, yaxşı musiqi və səmimi söhbətlər.</textarea>
-        </div>
-        <button class="btn btn-primary" id="saveProfileBtn">Yadda Saxla</button>
+        <button class="btn btn-primary" id="submitTopupBtn" style="margin-top:10px;width:100%;">
+          Ödəniş Sorğusu Göndər (Admin Təsdiqli)
+        </button>
+        <p style="font-size:11px;color:var(--muted);margin-top:6px;">
+          Sorğu göndərdikdən sonra Admin panelində dərhal görünür və təsdiqlənən kimi balansa oturur.
+        </p>
       </div>
-    </section>
-  </div>
 
-  <div class="toast" id="toastBox"></div>
-
-  <script>
-    (function () {
-      var soundEnabled = true;
-
-      function showToast(text) {
-        var box = document.getElementById("toastBox");
-        if (!box) return;
-        box.textContent = text;
-        box.className = "toast show";
-        setTimeout(function () { box.className = "toast"; }, 2400);
-      }
-
-      var profiles = [
-        { id: 1, name: "Leyla", age: 22, city: "Bakı", avatar: "L", bio: "Fotomüəlliflik, indie musiqi və dənizkənarı qəhvə söhbətləri.", tags: ["Musiqi", "Foto", "Qəhvə"] },
-        { id: 2, name: "Murad", age: 25, city: "Bakı", avatar: "M", bio: "Elektron musiqi, gecə maşın gəzintiləri və maraqlı filmlər.", tags: ["Film", "DJ", "Səyahət"] },
-        { id: 3, name: "Aysel", age: 21, city: "Gəncə", avatar: "A", bio: "Kitablar, səmimi söhbətlər və yeni tanışlıqlar.", tags: ["Kitab", "Kino", "Səmimi"] },
-        { id: 4, name: "Tural", age: 24, city: "Sumqayıt", avatar: "T", bio: "İdman, stolüstü oyunlar və pozitiv enerji.", tags: ["İdman", "Oyun", "Yumor"] },
-        { id: 5, name: "Nigar", age: 23, city: "Şəki", avatar: "N", bio: "Təbiət gəzintiləri, milli mətbəx və dərin söhbətlər.", tags: ["Təbiət", "Səyahət", "Musiqi"] }
-      ];
-
-      var tasks = [
-        { cat: "Səmimi", text: "İndiyə qədər etdiyin ən spontan qərar nə olub?" },
-        { cat: "Cəsarət", text: "Otaqdakı seçilmiş şəxsə 3 sözlə özünəməxsus tərif de." },
-        { cat: "Flört", text: "İlk görüş üçün Bakıda ən romantik və ya maraqlı məkan hansıdır?" },
-        { cat: "Gülüş", text: "Uşaqlıqda ən çox qorxduğun və ya gülməli vəziyyətə düşdüyün an?" },
-        { cat: "Cəsarət", text: "Telefonundakı son 3 fotodan birinin hekayəsini danış." }
-      ];
-
-      var icebreakers = [
-        "Həftəsonunu evdə film izləyərək keçirərdin, yoxsa şəhərdə gəzərək?",
-        "Ən sevdiyin mahnı hansıdır ki, eşidəndə əhvalın dərhal dəyişir?",
-        "Heç vaxt unutmadığın ən yaxşı səyahət xatirən hansıdır?"
-      ];
-
-      var repScore = 25;
-      var matches = [];
-      var currentAngle = 0;
-      var currentRoom = "Ümumi";
-      var discoverIndex = 0;
-      var lastTask = tasks[0];
-      var lastTarget = "Leyla";
-      var seats = ["Sən", "Leyla", "Murad", "Aysel", "Tural", "Nigar"];
-
-      var chatHistory = {
-        "Ümumi": [
-          { sender: "Leyla", text: "Salamlar! Bu axşam kim oyaqdır?", time: "23:10", me: false },
-          { sender: "Murad", text: "Butulka 2.0-da maraqlı suallar düşür, qoşulun!", time: "23:12", me: false }
-        ],
-        "Musiqi & Film": [
-          { sender: "Aysel", text: "Axşamlar üçün sakit playlist tövsiyə edə bilərsiniz?", time: "23:05", me: false }
-        ],
-        "Gecə Söhbətləri": [
-          { sender: "Tural", text: "Gecə yarısı ən yaxşı mövzu nədir sizcə?", time: "23:15", me: false }
-        ]
-      };
-
-      var tabBtns = document.querySelectorAll(".tab-btn");
-      for (var i = 0; i < tabBtns.length; i++) {
-        tabBtns[i].addEventListener("click", function () {
-          for (var j = 0; j < tabBtns.length; j++) tabBtns[j].classList.remove("active");
-          var panels = document.querySelectorAll(".panel");
-          for (var k = 0; k < panels.length; k++) panels[k].classList.remove("active");
-          this.classList.add("active");
-          var targetPanel = document.getElementById(this.getAttribute("data-tab"));
-          if (targetPanel) targetPanel.classList.add("active");
-        });
-      }
-
-      document.getElementById("joinRoomBtn").addEventListener("click", function () {
-        var code = document.getElementById("roomCodeInput").value.trim() || "#BAKI20";
-        showToast("Otağa qoşuldun: " + code);
-      });
-
-      document.getElementById("copyLinkBtn").addEventListener("click", function () {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(window.location.href).catch(function () {});
-        }
-        showToast("Link kopyalandı!");
-      });
-
-      document.getElementById("soundToggleBtn").addEventListener("click", function () {
-        soundEnabled = !soundEnabled;
-        this.textContent = soundEnabled ? "Səs: Açıq" : "Səs: Bağlı";
-      });
-
-      function getFilteredProfiles() {
-        var city = document.getElementById("cityFilter").value;
-        var minAge = parseInt(document.getElementById("ageFilter").value, 10) || 20;
-        return profiles.filter(function (p) {
-          return (city === "ALL" || p.city === city) && p.age >= minAge;
-        });
-      }
-
-      function renderMatches() {
-        var box = document.getElementById("matchesList");
-        if (!matches.length) {
-          box.innerHTML = '<p style="font-size:13px;color:var(--muted);margin-top:10px;">Hələ match yoxdur. Kartları bəyən və başla!</p>';
-          return;
-        }
-        var html = "";
-        for (var i = 0; i < matches.length; i++) {
-          var m = matches[i];
-          html += '<div class="match-item"><span><strong>' + m.name + '</strong> (' + m.age + ', ' + m.city + ')</span><button class="btn btn-cyan" data-dm="' + m.name + '">Mesaj Yaz</button></div>';
-        }
-        box.innerHTML = html;
-        var dmBtns = box.querySelectorAll("[data-dm]");
-        for (var j = 0; j < dmBtns.length; j++) {
-          dmBtns[j].addEventListener("click", function () {
-            document.querySelector('[data-tab="chat"]').click();
-            var inp = document.getElementById("chatInput");
-            inp.value = "Salam " + this.getAttribute("data-dm") + ", necəsən? ";
-            inp.focus();
-          });
-        }
-      }
-
-      function renderDiscover() {
-        document.getElementById("repScore").textContent = repScore;
-        var list = getFilteredProfiles();
-        var card = document.getElementById("currentProfileCard");
-        if (!list.length) {
-          card.innerHTML = '<p style="color:var(--muted);">Bu filtrə uyğun profil tapılmadı.</p>';
-          renderMatches();
-          return;
-        }
-        var p = list[discoverIndex % list.length];
-        var tagsHtml = "";
-        for (var i = 0; i < p.tags.length; i++) {
-          tagsHtml += '<span class="tag">#' + p.tags[i] + '</span>';
-        }
-        card.innerHTML =
-          '<div class="avatar-box">' + p.avatar + '</div>' +
-          '<div class="profile-name">' + p.name + ', ' + p.age + ' <span class="tag">' + p.city + '</span></div>' +
-          '<p style="color:var(--muted);margin-top:8px;">' + p.bio + '</p>' +
-          '<div class="tag-row">' + tagsHtml + '</div>' +
-          '<div class="swipe-actions">' +
-          '<button class="btn" id="passBtn">Keç</button>' +
-          '<button class="btn btn-primary" id="likeBtn">Bəyən</button>' +
-          '<button class="btn btn-cyan" id="superBtn">Super</button>' +
-          '</div>';
-
-        function handleSwipe(type) {
-          if (type === "like" || type === "super") {
-            repScore += (type === "super" ? 8 : 4);
-            var exists = false;
-            for (var k = 0; k < matches.length; k++) {
-              if (matches[k].id === p.id) exists = true;
-            }
-            if (!exists) matches.push(p);
-            showToast(p.name + " ilə Match oldun!");
-          }
-          discoverIndex++;
-          renderDiscover();
-        }
-
-        document.getElementById("passBtn").addEventListener("click", function () { handleSwipe("pass"); });
-        document.getElementById("likeBtn").addEventListener("click", function () { handleSwipe("like"); });
-        document.getElementById("superBtn").addEventListener("click", function () { handleSwipe("super"); });
-        renderMatches();
-      }
-
-      document.getElementById("cityFilter").addEventListener("change", renderDiscover);
-      document.getElementById("ageFilter").addEventListener("change", renderDiscover);
-
-      function renderSeats(selectedIdx) {
-        var stage = document.getElementById("circleStage");
-        var oldNodes = stage.querySelectorAll(".seat-node");
-        for (var i = 0; i < oldNodes.length; i++) oldNodes[i].remove();
-        var radius = 122;
-        for (var j = 0; j < seats.length; j++) {
-          var angle = (j / seats.length) * Math.PI * 2 - Math.PI / 2;
-          var x = 150 + radius * Math.cos(angle);
-          var y = 150 + radius * Math.sin(angle);
-          var node = document.createElement("div");
-          node.className = "seat-node" + (j === selectedIdx ? " selected" : "");
-          node.style.left = (x / 300) * 100 + "%";
-          node.style.top = (y / 300) * 100 + "%";
-          node.textContent = seats[j];
-          stage.appendChild(node);
-        }
-      }
-
-      function pickTask() {
-        var cat = document.getElementById("categorySelect").value;
-        var pool = cat === "ALL" ? tasks : tasks.filter(function (t) { return t.cat === cat; });
-        lastTask = pool[Math.floor(Math.random() * pool.length)];
-        document.getElementById("taskCategory").textContent = lastTask.cat;
-        document.getElementById("taskText").textContent = lastTask.text;
-      }
-
-      document.getElementById("spinBtn").addEventListener("click", function () {
-        var selectedIdx = Math.floor(Math.random() * seats.length);
-        lastTarget = seats[selectedIdx];
-        currentAngle += 1080 + Math.floor(Math.random() * 360);
-        document.getElementById("bottleEl").style.transform = "rotate(" + currentAngle + "deg)";
-        repScore += 10;
-        document.getElementById("repScore").textContent = repScore;
-        setTimeout(function () {
-          renderSeats(selectedIdx);
-          pickTask();
-          document.getElementById("taskTarget").textContent = "Seçilən iştirakçı: " + lastTarget;
-        }, 2600);
-      });
-
-      document.getElementById("newTaskBtn").addEventListener("click", pickTask);
-
-      function renderMessages() {
-        var box = document.getElementById("messagesList");
-        var list = chatHistory[currentRoom] || [];
-        var html = "";
-        for (var i = 0; i < list.length; i++) {
-          var m = list[i];
-          html += '<div class="msg ' + (m.me ? "me" : "") + '"><div class="msg-meta"><strong>' + m.sender + '</strong> • ' + m.time + '</div><div>' + m.text + '</div></div>';
-        }
-        box.innerHTML = html;
-        box.scrollTop = box.scrollHeight;
-      }
-
-      function pushMessage(room, sender, text, me) {
-        if (!chatHistory[room]) chatHistory[room] = [];
-        var now = new Date().toTimeString().slice(0, 5);
-        chatHistory[room].push({ sender: sender, text: text, time: now, me: !!me });
-        if (room === currentRoom) renderMessages();
-      }
-
-      document.getElementById("sendTaskToChatBtn").addEventListener("click", function () {
-        var myName = document.getElementById("myNameInput").value.trim() || "Sən";
-        pushMessage(currentRoom, myName, "Butulka (" + lastTarget + " - " + lastTask.cat + "): " + lastTask.text, true);
-        document.querySelector('[data-tab="chat"]').click();
-        showToast("Tapşırıq çatda paylaşıldı!");
-      });
-
-      var roomChips = document.querySelectorAll(".room-chip");
-      for (var r = 0; r < roomChips.length; r++) {
-        roomChips[r].addEventListener("click", function () {
-          for (var s = 0; s < roomChips.length; s++) roomChips[s].classList.remove("active");
-          this.classList.add("active");
-          currentRoom = this.getAttribute("data-room");
-          renderMessages();
-        });
-      }
-
-      function sendMsg() {
-        var input = document.getElementById("chatInput");
-        var val = input.value.trim();
-        if (!val) return;
-        var myName = document.getElementById("myNameInput").value.trim() || "Sən";
-        pushMessage(currentRoom, myName, val, true);
-        input.value = "";
-        setTimeout(function () {
-          pushMessage(currentRoom, "Murad", "Razıyam, maraqlı fikirdir!", false);
-        }, 700);
-      }
-
-      document.getElementById("sendMsgBtn").addEventListener("click", sendMsg);
-      document.getElementById("chatInput").addEventListener("keydown", function (e) {
-        if (e.key === "Enter") sendMsg();
-      });
-
-      document.getElementById("emojiBtn").addEventListener("click", function () {
-        var input = document.getElementById("chatInput");
-        input.value += " :)";
-        input.focus();
-      });
-
-      document.getElementById("icebreakerBtn").addEventListener("click", function () {
-        var q = icebreakers[Math.floor(Math.random() * icebreakers.length)];
-        var input = document.getElementById("chatInput");
-        input.value = q;
-        input.focus();
-      });
-
-      document.getElementById("saveProfileBtn").addEventListener("click", function () {
-        var age = parseInt(document.getElementById("myAgeInput").value, 10);
-        if (age < 20) {
-          showToast("Yaş ən azı 20 olmalıdır!");
-          return;
-        }
-        showToast("Profil məlumatları yadda saxlandı!");
-      });
-
-      renderDiscover();
-      renderSeats(-1);
-      renderMessages();
-    })();
-  </script>
-</body>
-</html>
+      <h4 style="margin-top:16px;">2. Balansla Ürək Paketi Al</h4>
+      <div class="pkg-grid">
+        <div class="pkg-card">
+      
