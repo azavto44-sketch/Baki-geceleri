@@ -513,663 +513,761 @@
   <div class="toast" id="toastBox"></div>
 
   <script>
-    var STORAGE_KEY = "baki_geceleri_v6";
-    var ADMIN_USER = "admin";
-    var ADMIN_PASS = "admin2026";
+    (function () {
+      var STORAGE_KEY = "baki_geceleri_v7";
+      var ADMIN_USER = "admin";
+      var ADMIN_PASS = "admin2026";
 
-    var state = {
-      users: [
-        { username: ADMIN_USER, pass: ADMIN_PASS, age: 26, gender: "Kişi", city: "Bakı", bio: "Platforma Administratoru", balance: 100, hearts: 99, isAdmin: true, vip: true, banned: false }
-      ],
-      currentUser: null,
-      topups: []
-    };
+      var state = {
+        users: [
+          { username: ADMIN_USER, pass: ADMIN_PASS, age: 26, gender: "Kişi", city: "Bakı", bio: "Platforma Administratoru", balance: 100, hearts: 99, isAdmin: true, vip: true, banned: false }
+        ],
+        currentUser: null,
+        topups: []
+      };
 
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.users)) {
-          state = parsed;
-        }
-      }
-    } catch (e) {}
-
-    function ensureAdmin() {
-      var found = false;
-      for (var i = 0; i < state.users.length; i++) {
-        if (state.users[i].username.toLowerCase() === ADMIN_USER) {
-          state.users[i].pass = ADMIN_PASS;
-          state.users[i].isAdmin = true;
-          state.users[i].banned = false;
-          found = true;
-        }
-      }
-      if (!found) {
-        state.users.unshift({ username: ADMIN_USER, pass: ADMIN_PASS, age: 26, gender: "Kişi", city: "Bakı", bio: "Platforma Administratoru", balance: 100, hearts: 99, isAdmin: true, vip: true, banned: false });
-      }
-    }
-    ensureAdmin();
-
-    function saveState() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-    }
-
-    function showAlert(msg) {
-      var el = document.getElementById("authAlert");
-      if (!el) return;
-      if (!msg) {
-        el.style.display = "none";
-        return;
-      }
-      el.textContent = msg;
-      el.style.display = "block";
-    }
-
-    function showToast(msg) {
-      var box = document.getElementById("toastBox");
-      if (!box) return;
-      box.textContent = msg;
-      box.className = "toast show";
-      setTimeout(function () { box.className = "toast"; }, 2600);
-    }
-
-    function switchAuthTab(mode) {
-      showAlert("");
-      var loginTab = document.getElementById("showLoginTab");
-      var regTab = document.getElementById("showRegisterTab");
-      var loginForm = document.getElementById("loginForm");
-      var regForm = document.getElementById("registerForm");
-
-      if (mode === "register") {
-        regTab.className = "auth-tab active";
-        loginTab.className = "auth-tab";
-        regForm.style.display = "block";
-        loginForm.style.display = "none";
-      } else {
-        loginTab.className = "auth-tab active";
-        regTab.className = "auth-tab";
-        loginForm.style.display = "block";
-        regForm.style.display = "none";
-      }
-    }
-
-    function doLogin() {
-      showAlert("");
-      var u = (document.getElementById("loginUser").value || "").trim();
-      var p = (document.getElementById("loginPass").value || "").trim();
-
-      if (!u || !p) {
-        showAlert("İstifadəçi adını və şifrəni daxil et!");
-        return;
-      }
-
-      if (u.toLowerCase() === ADMIN_USER && p === ADMIN_PASS) {
-        ensureAdmin();
-        state.currentUser = ADMIN_USER;
-        saveState();
-        enterApp();
-        showToast("Admin panelinə xoş gəldin!");
-        return;
-      }
-
-      var found = null;
-      for (var i = 0; i < state.users.length; i++) {
-        if (state.users[i].username.toLowerCase() === u.toLowerCase() && state.users[i].pass === p) {
-          found = state.users[i];
-          break;
-        }
-      }
-
-      if (!found) {
-        showAlert("İstifadəçi adı və ya şifrə yanlışdır!");
-        return;
-      }
-      if (found.banned) {
-        showAlert("Bu hesab bloklanıb!");
-        return;
-      }
-
-      state.currentUser = found.username;
-      saveState();
-      enterApp();
-      showToast("Xoş gəldin, " + found.username + "!");
-    }
-
-    function doRegister() {
-      showAlert("");
-      var name = (document.getElementById("regName").value || "").trim();
-      var age = parseInt(document.getElementById("regAge").value, 10) || 20;
-      var gender = document.getElementById("regGender").value;
-      var city = document.getElementById("regCity").value;
-      var pass = (document.getElementById("regPass").value || "").trim();
-
-      if (name.length < 2) {
-        showAlert("Ad ən azı 2 hərf olmalıdır!");
-        return;
-      }
-      if (name.toLowerCase() === ADMIN_USER) {
-        showAlert("Bu istifadəçi adı sistem tərəfindən ayrılıb!");
-        return;
-      }
-      if (age < 20) {
-        showAlert("Platforma yalnız 20+ yaş üçündür!");
-        return;
-      }
-      if (pass.length < 4) {
-        showAlert("Şifrə ən azı 4 simvol olmalıdır!");
-        return;
-      }
-
-      for (var i = 0; i < state.users.length; i++) {
-        if (state.users[i].username.toLowerCase() === name.toLowerCase()) {
-          showAlert("Bu ad artıq qeydiyyatdan keçib!");
-          return;
-        }
-      }
-
-      state.users.push({
-        username: name,
-        pass: pass,
-        age: age,
-        gender: gender,
-        city: city,
-        bio: "Yeni üzv — səmimi tanışlıq və maraqlı söhbətlər.",
-        balance: 0,
-        hearts: 2,
-        isAdmin: false,
-        vip: false,
-        banned: false
-      });
-
-      state.currentUser = name;
-      saveState();
-      enterApp();
-      showToast("Qeydiyyat tamamlandı! +2 Ürək hədiyyə!");
-    }
-
-    function doLogout() {
-      stopMic();
-      state.currentUser = null;
-      saveState();
-      document.getElementById("authScreen").className = "auth-screen";
-    }
-
-    function getMe() {
-      if (!state.currentUser) return null;
-      for (var i = 0; i < state.users.length; i++) {
-        if (state.users[i].username.toLowerCase() === state.currentUser.toLowerCase()) {
-          return state.users[i];
-        }
-      }
-      return null;
-    }
-
-    function openTab(tabId, btnEl) {
-      var btns = document.querySelectorAll(".nav-btn");
-      for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
-      var panels = document.querySelectorAll(".panel");
-      for (var j = 0; j < panels.length; j++) panels[j].classList.remove("active");
-
-      if (btnEl) btnEl.classList.add("active");
-      else {
-        var targetBtn = document.querySelector('[data-tab="' + tabId + '"]');
-        if (targetBtn) targetBtn.classList.add("active");
-      }
-      var panel = document.getElementById(tabId);
-      if (panel) panel.classList.add("active");
-    }
-
-    var discoverProfiles = [
-      { id: 1, name: "Leyla", age: 22, city: "Bakı", avatar: "🌙", verified: true, heartsReceived: 14, bio: "Fotomüəlliflik, indie musiqi və dənizkənarı qəhvə.", tags: ["Musiqi", "Foto", "Qəhvə"] },
-      { id: 2, name: "Aysel", age: 21, city: "Gəncə", avatar: "✨", verified: true, heartsReceived: 21, bio: "Kitablar, səmimi söhbətlər və yeni tanışlıqlar.", tags: ["Kitab", "Kino", "Səmimi"] },
-      { id: 3, name: "Nigar", age: 23, city: "Şəki", avatar: "🍃", verified: true, heartsReceived: 18, bio: "Təbiət gəzintiləri, musiqi və dərin söhbətlər.", tags: ["Təbiət", "Səyahət", "Musiqi"] },
-      { id: 4, name: "Murad", age: 25, city: "Bakı", avatar: "🎧", verified: true, heartsReceived: 9, bio: "Elektron musiqi, gecə maşın gəzintiləri və filmlər.", tags: ["DJ", "Film", "Bakı"] },
-      { id: 5, name: "Tural", age: 24, city: "Sumqayıt", avatar: "⚡", verified: false, heartsReceived: 7, bio: "İdman, stolüstü oyunlar və pozitiv enerji.", tags: ["İdman", "Oyun", "Yumor"] }
-    ];
-
-    var matches = [];
-    var discoverIdx = 0;
-
-    function escAttr(str) {
-      return String(str).replace(/\/g, "\\").replace(/'/g, "\'");
-    }
-
-    function renderDiscover() {
-      var city = document.getElementById("cityFilter").value;
-      var minAge = parseInt(document.getElementById("ageFilter").value, 10) || 20;
-      var list = discoverProfiles.filter(function (p) {
-        return (city === "ALL" || p.city === city) && p.age >= minAge;
-      });
-      var card = document.getElementById("currentProfileCard");
-      if (!list.length) {
-        card.innerHTML = '<p style="color:var(--muted);">Bu filtrə uyğun profil tapılmadı.</p>';
-        return;
-      }
-      var p = list[discoverIdx % list.length];
-      var tagsHtml = p.tags.map(function (t) { return '<span class="tag">#' + t + '</span>'; }).join("");
-      var safeName = escAttr(p.name);
-      card.innerHTML =
-        '<div style="display:flex;justify-content:space-between;align-items:start;">' +
-          '<div class="avatar-circle">' + p.avatar + '</div>' +
-          '<span class="pill" style="color:var(--accent);">❤️ ' + p.heartsReceived + ' Ürək</span>' +
-        '</div>' +
-        '<h3>' + p.name + ', ' + p.age + (p.verified ? '<span class="verified-tag">✓ Təsdiqli</span>' : '') + '</h3>' +
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">📍 ' + p.city + '</div>' +
-        '<p style="margin-top:8px;font-size:14px;">' + p.bio + '</p>' +
-        '<div class="tag-row">' + tagsHtml + '</div>' +
-        '<div class="action-grid">' +
-          '<button type="button" class="btn" onclick="nextDiscover()">✖ Keç</button>' +
-          '<button type="button" class="btn btn-primary" onclick="likeDiscover(' + p.id + ')">💚 Bəyən</button>' +
-          '<button type="button" class="btn btn-gold" onclick="heartDiscover(' + p.id + ')">❤️ Ürək At</button>' +
-          '<button type="button" class="btn btn-cyan" onclick="chatDiscover('' + safeName + '')">💬 Yaz</button>' +
-        '</div>';
-    }
-
-    function nextDiscover() { discoverIdx++; renderDiscover(); }
-
-    function likeDiscover(id) {
-      var p = discoverProfiles.find(function (x) { return x.id === id; });
-      if (p && !matches.some(function (m) { return m.id === p.id; })) matches.push(p);
-      if (p) showToast("🎉 " + p.name + " ilə Match oldun!");
-      discoverIdx++; renderDiscover(); renderMatches();
-    }
-
-    function heartDiscover(id) {
-      var p = discoverProfiles.find(function (x) { return x.id === id; });
-      if (!p) return;
-      sendHeartToPerson(p.name, function () {
-        p.heartsReceived++;
-        if (!matches.some(function (m) { return m.id === p.id; })) matches.push(p);
-        renderDiscover(); renderMatches();
-      });
-    }
-
-    function chatDiscover(name) {
-      openTab("chat");
-      var inp = document.getElementById("chatInput");
-      inp.value = "Salam " + name + ", necəsən? ";
-      inp.focus();
-    }
-
-    function renderMatches() {
-      var box = document.getElementById("matchesList");
-      if (!matches.length) {
-        box.innerHTML = '<p style="font-size:13px;color:var(--muted);margin-top:6px;">Hələ match yoxdur. Bəyən və ya Ürək göndər!</p>';
-        return;
-      }
-      box.innerHTML = matches.map(function (m) {
-        var safeName = escAttr(m.name);
-        return '<div class="match-card"><span>' + m.avatar + ' <strong>' + m.name + '</strong> (' + m.city + ')</span>' +
-          '<div style="display:flex;gap:6px;">' +
-          '<button type="button" class="btn btn-gold" onclick="sendHeartToPerson('' + safeName + '')">❤️ Ürək</button>' +
-          '<button type="button" class="btn btn-cyan" onclick="chatDiscover('' + safeName + '')">Yaz</button></div></div>';
-      }).join("");
-    }
-
-    function sendHeartToPerson(targetName, onSuccess) {
-      var me = getMe();
-      if (!me) return;
-      if (me.hearts < 1) {
-        showToast("Ürəyin bitib! Ürəklər & Balans bölməsindən ürək al.");
-        openTab("wallet");
-        return;
-      }
-      me.hearts -= 1;
-      saveState();
-      updateHeader();
-      pushMessage(currentRoom, me.username, "💖 " + targetName + " adlı istifadəçiyə 1 Ürək hədiyyə göndərdi!", true, true);
-      showToast("❤️ " + targetName + " üçün 1 Ürək göndərildi!");
-      if (onSuccess) onSuccess();
-    }
-
-    var micStream = null;
-    var micActive = false;
-
-    function stopMic() {
-      if (micStream) {
-        micStream.getTracks().forEach(function (t) { t.stop(); });
-        micStream = null;
-      }
-      micActive = false;
-      updateVoiceUI();
-    }
-
-    function toggleMic() {
-      if (micActive) {
-        stopMic();
-        showToast("Mikrofon söndürüldü.");
-        return;
-      }
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-          micStream = stream;
-          micActive = true;
-          updateVoiceUI();
-          showToast("🎙️ Canlı səsli efirə qoşuldun!");
-        }).catch(function () {
-          micActive = true;
-          updateVoiceUI();
-          showToast("🎙️ Səsli otaq rejimi aktivdir.");
-        });
-      } else {
-        micActive = true;
-        updateVoiceUI();
-        showToast("🎙️ Səsli otaq rejimi aktivdir!");
-      }
-    }
-
-    function updateVoiceUI() {
-      var me = getMe();
-      var myName = me ? me.username : "Sən";
-      var speakers = [
-        { name: "Leyla", active: true },
-        { name: "Murad", active: false },
-        { name: "Aysel", active: true }
-      ];
-      if (micActive) speakers.unshift({ name: myName + " (Sən)", active: true });
-
-      var chipsHtml = speakers.map(function (s) {
-        return '<span class="speaker-chip ' + (s.active ? "speaking" : "") + '">' +
-          (s.active ? '<span class="wave"></span>' : '🔇') + ' ' + s.name + '</span>';
-      }).join("");
-
-      document.getElementById("bottleSpeakersList").innerHTML = chipsHtml;
-      document.getElementById("roomSpeakersList").innerHTML = chipsHtml;
-      document.getElementById("toggleBottleMicBtn").textContent = micActive ? "🔴 Mikrofonu Bağla" : "🎤 Mikrofonu Aç";
-      document.getElementById("toggleRoomMicBtn").textContent = micActive ? "🔴 Efirdən Çıx" : "🎤 Efirə Qoşul (Mikrofon)";
-      document.getElementById("bottleVoiceStatus").textContent = micActive ? "Canlı yayımdasan — masadakılar səni eşidir" : "Mikrofon bağlıdır. Danışmaq üçün qoşul!";
-      document.getElementById("roomVoiceStatus").textContent = micActive ? "Canlı səsli efirdəsən" : "Səsli efiri dinləyirsən";
-    }
-
-    function testBeep() {
       try {
-        var ctx = new (window.AudioContext || window.webkitAudioContext)();
-        var osc = ctx.createOscillator();
-        osc.frequency.value = 540;
-        osc.connect(ctx.destination);
-        osc.start();
-        setTimeout(function () { osc.stop(); }, 180);
-      } catch (e) {}
-      showToast("🔊 Səs çıxışı işləyir!");
-    }
-
-    var bottleTasks = [
-      { cat: "Səmimi", text: "Səsli efirdə indiyə qədər etdiyin ən çılğın qərarı danış!" },
-      { cat: "Cəsarət", text: "Mikrofonu açıb seçilmiş şəxsə 5 saniyəlik tərif de!" },
-      { cat: "Flört", text: "Bakıda ilk görüş üçün ən ideal məkan haradır?" },
-      { cat: "Səmimi", text: "Otaqdakılardan hansına 1 Ürək hədiyyə edərdin?" }
-    ];
-    var bottleAngle = 0;
-    var lastBottleTarget = "Leyla";
-    var lastBottleTask = bottleTasks[0];
-
-    function renderSeats(selectedIdx) {
-      var me = getMe();
-      var seats = [me ? me.username : "Sən", "Leyla", "Murad", "Aysel", "Tural", "Nigar"];
-      var stage = document.getElementById("circleStage");
-      stage.querySelectorAll(".seat-node").forEach(function (n) { n.remove(); });
-      var radius = 118;
-      seats.forEach(function (name, idx) {
-        var angle = (idx / seats.length) * Math.PI * 2 - Math.PI / 2;
-        var x = 145 + radius * Math.cos(angle);
-        var y = 145 + radius * Math.sin(angle);
-        var node = document.createElement("div");
-        node.className = "seat-node" + (idx === selectedIdx ? " selected" : "");
-        node.style.left = (x / 290) * 100 + "%";
-        node.style.top = (y / 290) * 100 + "%";
-        node.textContent = name;
-        stage.appendChild(node);
-      });
-      return seats;
-    }
-
-    function spinBottle() {
-      var seats = renderSeats(-1);
-      var idx = Math.floor(Math.random() * seats.length);
-      lastBottleTarget = seats[idx];
-      bottleAngle += 1080 + Math.floor(Math.random() * 360);
-      document.getElementById("bottleEl").style.transform = "rotate(" + bottleAngle + "deg)";
-
-      setTimeout(function () {
-        renderSeats(idx);
-        var cat = document.getElementById("categorySelect").value;
-        var pool = cat === "ALL" ? bottleTasks : bottleTasks.filter(function (t) { return t.cat === cat; });
-        lastBottleTask = pool[Math.floor(Math.random() * pool.length)];
-        document.getElementById("taskCategory").textContent = lastBottleTask.cat;
-        document.getElementById("taskTarget").textContent = "Seçilən iştirakçı: " + lastBottleTarget;
-        document.getElementById("taskText").textContent = lastBottleTask.text;
-      }, 2500);
-    }
-
-    function sendTaskToChat() {
-      var me = getMe();
-      if (!me) return;
-      pushMessage(currentRoom, me.username, "🍾 Butulka (" + lastBottleTarget + "): " + lastBottleTask.text, true, false);
-      openTab("chat");
-    }
-
-    function giftBottleTarget() {
-      sendHeartToPerson(lastBottleTarget);
-    }
-
-    var currentRoom = "Ümumi";
-    var chatData = {
-      "Ümumi": [
-        { sender: "Leyla", text: "Axşamınız xeyir! Səsli efirə kim qoşulur?", time: "03:10", me: false, gift: false },
-        { sender: "Murad", text: "Butulka masasında maraqlı suallar var 🍾", time: "03:12", me: false, gift: false }
-      ],
-      "Gecə Söhbətləri": [
-        { sender: "Nigar", text: "Gecə yarısı Bakı sakitliyi bir başqadır ✨", time: "03:18", me: false, gift: false }
-      ],
-      "VIP Lounge": [
-        { sender: "Leyla", text: "VIP otağa xoş gəldiniz! Ürək göndərənlər ön sırada görünür.", time: "03:00", me: false, gift: true }
-      ]
-    };
-
-    function selectRoom(roomName, el) {
-      document.querySelectorAll(".room-chip").forEach(function (c) { c.classList.remove("active"); });
-      if (el) el.classList.add("active");
-      currentRoom = roomName;
-      document.getElementById("activeVoiceRoomName").textContent = currentRoom;
-      renderMessages();
-    }
-
-    function renderMessages() {
-      var box = document.getElementById("messagesList");
-      var list = chatData[currentRoom] || [];
-      box.innerHTML = list.map(function (m) {
-        return '<div class="msg ' + (m.me ? "me" : "") + ' ' + (m.gift ? "heart-gift" : "") + '">' +
-          '<div class="msg-meta"><strong>' + m.sender + '</strong> • ' + m.time + '</div>' +
-          '<div>' + m.text + '</div></div>';
-      }).join("");
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function pushMessage(room, sender, text, me, gift) {
-      if (!chatData[room]) chatData[room] = [];
-      var now = new Date().toTimeString().slice(0, 5);
-      chatData[room].push({ sender: sender, text: text, time: now, me: !!me, gift: !!gift });
-      if (room === currentRoom) renderMessages();
-    }
-
-    function handleSendChat() {
-      var inp = document.getElementById("chatInput");
-      var txt = inp.value.trim();
-      if (!txt) return;
-      var me = getMe();
-      if (!me) return;
-      pushMessage(currentRoom, me.username, txt, true, false);
-      inp.value = "";
-    }
-
-    function submitTopup() {
-      var me = getMe();
-      if (!me) return;
-      var amt = parseFloat(document.getElementById("topupAmount").value) || 8;
-      var note = document.getElementById("topupNote").value.trim() || "Kart / M10 köçürməsi";
-      var now = new Date().toTimeString().slice(0, 5);
-
-      state.topups.unshift({
-        id: Date.now(),
-        username: me.username,
-        amount: amt,
-        note: note,
-        status: "pending",
-        time: now
-      });
-      saveState();
-      document.getElementById("topupNote").value = "";
-      renderWalletHistory();
-      renderAdmin();
-      showToast("✅ " + amt + " AZN ödəniş sorğusu göndərildi!");
-    }
-
-    function buyHearts(hearts, cost) {
-      var me = getMe();
-      if (!me) return;
-      if (me.balance < cost) {
-        showToast("Balans kifayət deyil! Əvvəlcə balans artır.");
-        return;
-      }
-      me.balance = Number((me.balance - cost).toFixed(2));
-      me.hearts += hearts;
-      if (hearts >= 30) me.vip = true;
-      saveState();
-      updateHeader();
-      showToast("🎉 +" + hearts + " Ürək hesabına əlavə olundu!");
-    }
-
-    function renderWalletHistory() {
-      var me = getMe();
-      if (!me) return;
-      var mine = state.topups.filter(function (t) { return t.username === me.username; });
-      var box = document.getElementById("myTopupHistory");
-      if (!mine.length) { box.innerHTML = ""; return; }
-      box.innerHTML = '<h4>Ödəniş Sorğularım</h4>' + mine.map(function (t) {
-        var st = t.status === "approved"
-          ? '<span style="color:var(--success);">✓ Təsdiqləndi</span>'
-          : (t.status === "rejected" ? '<span style="color:var(--danger);">✖ Ləğv edildi</span>' : '<span style="color:var(--gold);">⏳ Gözləyir</span>');
-        return '<div class="admin-row"><span><strong>' + t.amount + ' AZN</strong> (' + t.note + ') • ' + t.time + '</span>' + st + '</div>';
-      }).join("");
-    }
-
-    function approveTopup(id) {
-      for (var i = 0; i < state.topups.length; i++) {
-        if (state.topups[i].id === id && state.topups[i].status === "pending") {
-          state.topups[i].status = "approved";
-          for (var u = 0; u < state.users.length; u++) {
-            if (state.users[u].username === state.topups[i].username) {
-              state.users[u].balance = Number((state.users[u].balance + state.topups[i].amount).toFixed(2));
-            }
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.users)) {
+            state = parsed;
           }
         }
+      } catch (e) {}
+
+      function ensureAdmin() {
+        var found = false;
+        for (var i = 0; i < state.users.length; i++) {
+          if (state.users[i] && String(state.users[i].username).toLowerCase() === ADMIN_USER) {
+            state.users[i].pass = ADMIN_PASS;
+            state.users[i].isAdmin = true;
+            state.users[i].banned = false;
+            found = true;
+          }
+        }
+        if (!found) {
+          state.users.unshift({ username: ADMIN_USER, pass: ADMIN_PASS, age: 26, gender: "Kişi", city: "Bakı", bio: "Platforma Administratoru", balance: 100, hearts: 99, isAdmin: true, vip: true, banned: false });
+        }
       }
-      saveState(); updateHeader(); renderAdmin();
-      showToast("Ödəniş təsdiqləndi!");
-    }
+      ensureAdmin();
 
-    function rejectTopup(id) {
-      for (var i = 0; i < state.topups.length; i++) {
-        if (state.topups[i].id === id) state.topups[i].status = "rejected";
+      function saveState() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
       }
-      saveState(); renderAdmin();
-      showToast("Sorğu rədd edildi.");
-    }
 
-    function adminAddBal(uname) {
-      state.users.forEach(function (u) { if (u.username === uname) u.balance += 8; });
-      saveState(); updateHeader(); renderAdmin();
-      showToast(uname + " balansına +8 AZN əlavə edildi!");
-    }
+      function showAlert(msg) {
+        var el = document.getElementById("authAlert");
+        if (!el) return;
+        if (!msg) {
+          el.style.display = "none";
+          return;
+        }
+        el.textContent = msg;
+        el.style.display = "block";
+      }
 
-    function adminAddHeart(uname) {
-      state.users.forEach(function (u) { if (u.username === uname) u.hearts += 10; });
-      saveState(); updateHeader(); renderAdmin();
-      showToast(uname + " hesabına +10 Ürək əlavə edildi!");
-    }
+      function showToast(msg) {
+        var box = document.getElementById("toastBox");
+        if (!box) return;
+        box.textContent = msg;
+        box.className = "toast show";
+        setTimeout(function () { box.className = "toast"; }, 2600);
+      }
 
-    function adminToggleBan(uname) {
-      state.users.forEach(function (u) { if (u.username === uname) u.banned = !u.banned; });
-      saveState(); renderAdmin();
-    }
+      function switchAuthTab(mode) {
+        showAlert("");
+        var loginTab = document.getElementById("showLoginTab");
+        var regTab = document.getElementById("showRegisterTab");
+        var loginForm = document.getElementById("loginForm");
+        var regForm = document.getElementById("registerForm");
 
-    function renderAdmin() {
-      var me = getMe();
-      if (!me || !me.isAdmin) return;
+        if (mode === "register") {
+          if (regTab) regTab.className = "auth-tab active";
+          if (loginTab) loginTab.className = "auth-tab";
+          if (regForm) regForm.style.display = "block";
+          if (loginForm) loginForm.style.display = "none";
+        } else {
+          if (loginTab) loginTab.className = "auth-tab active";
+          if (regTab) regTab.className = "auth-tab";
+          if (loginForm) loginForm.style.display = "block";
+          if (regForm) regForm.style.display = "none";
+        }
+      }
 
-      var topupsBox = document.getElementById("adminTopupsList");
-      if (!state.topups.length) {
-        topupsBox.innerHTML = '<p style="font-size:13px;color:var(--muted);">Sorğu yoxdur.</p>';
-      } else {
-        topupsBox.innerHTML = state.topups.map(function (t) {
-          var actions = t.status === "pending"
-            ? '<button type="button" class="btn btn-cyan" onclick="approveTopup(' + t.id + ')">✓ Təsdiqlə</button> ' +
-              '<button type="button" class="btn btn-danger" onclick="rejectTopup(' + t.id + ')">✖ Rədd et</button>'
-            : '<span style="color:var(--muted);">' + (t.status === "approved" ? "Təsdiqlənib" : "Rədd edilib") + '</span>';
-          return '<div class="admin-row"><div><strong>' + t.username + '</strong> — <span style="color:var(--gold);">' + t.amount + ' AZN</span><div style="font-size:11px;color:var(--muted);">' + t.note + ' • ' + t.time + '</div></div><div>' + actions + '</div></div>';
+      function doLogin() {
+        showAlert("");
+        var uEl = document.getElementById("loginUser");
+        var pEl = document.getElementById("loginPass");
+        var u = (uEl && uEl.value ? uEl.value : "").trim();
+        var p = (pEl && pEl.value ? pEl.value : "").trim();
+
+        if (!u || !p) {
+          showAlert("İstifadəçi adını və şifrəni daxil et!");
+          return;
+        }
+
+        if (u.toLowerCase() === ADMIN_USER && p === ADMIN_PASS) {
+          ensureAdmin();
+          state.currentUser = ADMIN_USER;
+          saveState();
+          enterApp();
+          showToast("Admin panelinə xoş gəldin!");
+          return;
+        }
+
+        var found = null;
+        for (var i = 0; i < state.users.length; i++) {
+          if (state.users[i] && String(state.users[i].username).toLowerCase() === u.toLowerCase() && state.users[i].pass === p) {
+            found = state.users[i];
+            break;
+          }
+        }
+
+        if (!found) {
+          showAlert("İstifadəçi adı və ya şifrə yanlışdır!");
+          return;
+        }
+        if (found.banned) {
+          showAlert("Bu hesab bloklanıb!");
+          return;
+        }
+
+        state.currentUser = found.username;
+        saveState();
+        enterApp();
+        showToast("Xoş gəldin, " + found.username + "!");
+      }
+
+      function doRegister() {
+        showAlert("");
+        var nameEl = document.getElementById("regName");
+        var ageEl = document.getElementById("regAge");
+        var genderEl = document.getElementById("regGender");
+        var cityEl = document.getElementById("regCity");
+        var passEl = document.getElementById("regPass");
+
+        var name = (nameEl && nameEl.value ? nameEl.value : "").trim();
+        var age = parseInt(ageEl && ageEl.value ? ageEl.value : "20", 10) || 20;
+        var gender = genderEl ? genderEl.value : "Kişi";
+        var city = cityEl ? cityEl.value : "Bakı";
+        var pass = (passEl && passEl.value ? passEl.value : "").trim();
+
+        if (name.length < 2) {
+          showAlert("Ad ən azı 2 hərf olmalıdır!");
+          return;
+        }
+        if (name.toLowerCase() === ADMIN_USER) {
+          showAlert("Bu istifadəçi adı sistem tərəfindən ayrılıb!");
+          return;
+        }
+        if (age < 20) {
+          showAlert("Platforma yalnız 20+ yaş üçündür!");
+          return;
+        }
+        if (pass.length < 4) {
+          showAlert("Şifrə ən azı 4 simvol olmalıdır!");
+          return;
+        }
+
+        for (var i = 0; i < state.users.length; i++) {
+          if (state.users[i] && String(state.users[i].username).toLowerCase() === name.toLowerCase()) {
+            showAlert("Bu ad artıq qeydiyyatdan keçib!");
+            return;
+          }
+        }
+
+        state.users.push({
+          username: name,
+          pass: pass,
+          age: age,
+          gender: gender,
+          city: city,
+          bio: "Yeni üzv — səmimi tanışlıq və maraqlı söhbətlər.",
+          balance: 0,
+          hearts: 2,
+          isAdmin: false,
+          vip: false,
+          banned: false
+        });
+
+        state.currentUser = name;
+        saveState();
+        enterApp();
+        showToast("Qeydiyyat tamamlandı! +2 Ürək hədiyyə!");
+      }
+
+      function doLogout() {
+        stopMic();
+        state.currentUser = null;
+        saveState();
+        var authEl = document.getElementById("authScreen");
+        if (authEl) authEl.className = "auth-screen";
+      }
+
+      function getMe() {
+        if (!state.currentUser) return null;
+        for (var i = 0; i < state.users.length; i++) {
+          if (state.users[i] && String(state.users[i].username).toLowerCase() === String(state.currentUser).toLowerCase()) {
+            return state.users[i];
+          }
+        }
+        return null;
+      }
+
+      function openTab(tabId, btnEl) {
+        var btns = document.querySelectorAll(".nav-btn");
+        for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+        var panels = document.querySelectorAll(".panel");
+        for (var j = 0; j < panels.length; j++) panels[j].classList.remove("active");
+
+        if (btnEl) btnEl.classList.add("active");
+        else {
+          var targetBtn = document.querySelector('[data-tab="' + tabId + '"]');
+          if (targetBtn) targetBtn.classList.add("active");
+        }
+        var panel = document.getElementById(tabId);
+        if (panel) panel.classList.add("active");
+      }
+
+      var discoverProfiles = [
+        { id: 1, name: "Leyla", age: 22, city: "Bakı", avatar: "🌙", verified: true, heartsReceived: 14, bio: "Fotomüəlliflik, indie musiqi və dənizkənarı qəhvə.", tags: ["Musiqi", "Foto", "Qəhvə"] },
+        { id: 2, name: "Aysel", age: 21, city: "Gəncə", avatar: "✨", verified: true, heartsReceived: 21, bio: "Kitablar, səmimi söhbətlər və yeni tanışlıqlar.", tags: ["Kitab", "Kino", "Səmimi"] },
+        { id: 3, name: "Nigar", age: 23, city: "Şəki", avatar: "🍃", verified: true, heartsReceived: 18, bio: "Təbiət gəzintiləri, musiqi və dərin söhbətlər.", tags: ["Təbiət", "Səyahət", "Musiqi"] },
+        { id: 4, name: "Murad", age: 25, city: "Bakı", avatar: "🎧", verified: true, heartsReceived: 9, bio: "Elektron musiqi, gecə maşın gəzintiləri və filmlər.", tags: ["DJ", "Film", "Bakı"] },
+        { id: 5, name: "Tural", age: 24, city: "Sumqayıt", avatar: "⚡", verified: false, heartsReceived: 7, bio: "İdman, stolüstü oyunlar və pozitiv enerji.", tags: ["İdman", "Oyun", "Yumor"] }
+      ];
+
+      var matches = [];
+      var discoverIdx = 0;
+
+      function escAttr(str) {
+        return String(str).replace(/\/g, "\\").replace(/'/g, "\'");
+      }
+
+      function renderDiscover() {
+        var cityEl = document.getElementById("cityFilter");
+        var ageEl = document.getElementById("ageFilter");
+        var city = cityEl ? cityEl.value : "ALL";
+        var minAge = parseInt(ageEl && ageEl.value ? ageEl.value : "20", 10) || 20;
+        var list = discoverProfiles.filter(function (p) {
+          return (city === "ALL" || p.city === city) && p.age >= minAge;
+        });
+        var card = document.getElementById("currentProfileCard");
+        if (!card) return;
+        if (!list.length) {
+          card.innerHTML = '<p style="color:var(--muted);">Bu filtrə uyğun profil tapılmadı.</p>';
+          return;
+        }
+        var p = list[discoverIdx % list.length];
+        var tagsHtml = p.tags.map(function (t) { return '<span class="tag">#' + t + '</span>'; }).join("");
+        var safeName = escAttr(p.name);
+        card.innerHTML =
+          '<div style="display:flex;justify-content:space-between;align-items:start;">' +
+            '<div class="avatar-circle">' + p.avatar + '</div>' +
+            '<span class="pill" style="color:var(--accent);">❤️ ' + p.heartsReceived + ' Ürək</span>' +
+          '</div>' +
+          '<h3>' + p.name + ', ' + p.age + (p.verified ? '<span class="verified-tag">✓ Təsdiqli</span>' : '') + '</h3>' +
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px;">📍 ' + p.city + '</div>' +
+          '<p style="margin-top:8px;font-size:14px;">' + p.bio + '</p>' +
+          '<div class="tag-row">' + tagsHtml + '</div>' +
+          '<div class="action-grid">' +
+            '<button type="button" class="btn" data-action="next">✖ Keç</button>' +
+            '<button type="button" class="btn btn-primary" data-action="like" data-id="' + p.id + '">💚 Bəyən</button>' +
+            '<button type="button" class="btn btn-gold" data-action="heart" data-id="' + p.id + '">❤️ Ürək At</button>' +
+            '<button type="button" class="btn btn-cyan" data-action="chat" data-name="' + safeName + '">💬 Yaz</button>' +
+          '</div>';
+      }
+
+      function nextDiscover() { discoverIdx++; renderDiscover(); }
+
+      function likeDiscover(id) {
+        var p = discoverProfiles.find(function (x) { return x.id === id; });
+        if (p && !matches.some(function (m) { return m.id === p.id; })) matches.push(p);
+        if (p) showToast("🎉 " + p.name + " ilə Match oldun!");
+        discoverIdx++; renderDiscover(); renderMatches();
+      }
+
+      function heartDiscover(id) {
+        var p = discoverProfiles.find(function (x) { return x.id === id; });
+        if (!p) return;
+        sendHeartToPerson(p.name, function () {
+          p.heartsReceived++;
+          if (!matches.some(function (m) { return m.id === p.id; })) matches.push(p);
+          renderDiscover(); renderMatches();
+        });
+      }
+
+      function chatDiscover(name) {
+        openTab("chat");
+        var inp = document.getElementById("chatInput");
+        if (inp) {
+          inp.value = "Salam " + name + ", necəsən? ";
+          inp.focus();
+        }
+      }
+
+      function renderMatches() {
+        var box = document.getElementById("matchesList");
+        if (!box) return;
+        if (!matches.length) {
+          box.innerHTML = '<p style="font-size:13px;color:var(--muted);margin-top:6px;">Hələ match yoxdur. Bəyən və ya Ürək göndər!</p>';
+          return;
+        }
+        box.innerHTML = matches.map(function (m) {
+          var safeName = escAttr(m.name);
+          return '<div class="match-card"><span>' + m.avatar + ' <strong>' + m.name + '</strong> (' + m.city + ')</span>' +
+            '<div style="display:flex;gap:6px;">' +
+            '<button type="button" class="btn btn-gold" data-action="match-heart" data-name="' + safeName + '">❤️ Ürək</button>' +
+            '<button type="button" class="btn btn-cyan" data-action="match-chat" data-name="' + safeName + '">Yaz</button></div></div>';
         }).join("");
       }
 
-      var usersBox = document.getElementById("adminUsersList");
-      usersBox.innerHTML = state.users.map(function (u) {
-        var safeUname = escAttr(u.username);
-        return '<div class="admin-row">' +
-          '<div><strong>' + u.username + '</strong> (' + u.age + ', ' + u.city + ')' +
-          '<div style="font-size:11px;color:var(--muted);">Balans: ' + u.balance + ' AZN • Ürək: ' + u.hearts + '</div></div>' +
-          '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
-            '<button type="button" class="btn btn-gold" onclick="adminAddBal('' + safeUname + '')">+8 AZN</button>' +
-            '<button type="button" class="btn btn-cyan" onclick="adminAddHeart('' + safeUname + '')">+10 ❤️</button>' +
-            (!u.isAdmin ? '<button type="button" class="btn btn-danger" onclick="adminToggleBan('' + safeUname + '')">' + (u.banned ? "Bloku Aç" : "Blokla") + '</button>' : '') +
-          '</div></div>';
-      }).join("");
-    }
-
-    function saveProfile() {
-      var me = getMe();
-      if (!me) return;
-      var age = parseInt(document.getElementById("profAge").value, 10) || 20;
-      if (age < 20) { showToast("Yaş ən azı 20 olmalıdır!"); return; }
-      me.age = age;
-      me.city = document.getElementById("profCity").value;
-      me.bio = document.getElementById("profBio").value.trim();
-      saveState();
-      updateHeader();
-      showToast("Profil yeniləndi!");
-    }
-
-    function updateHeader() {
-      var me = getMe();
-      if (!me) return;
-      document.getElementById("userBadge").textContent = (me.vip ? "👑 " : "👤 ") + me.username;
-      document.getElementById("balDisplay").textContent = Number(me.balance).toFixed(2);
-      document.getElementById("heartsDisplay").textContent = me.hearts;
-      document.getElementById("adminNavBtn").style.display = me.isAdmin ? "block" : "none";
-
-      document.getElementById("profName").value = me.username;
-      document.getElementById("profAge").value = me.age;
-      document.getElementById("profCity").value = me.city;
-      document.getElementById("profBio").value = me.bio;
-    }
-
-    function enterApp() {
-      var me = getMe();
-      if (!me) {
-        document.getElementById("authScreen").className = "auth-screen";
-        return;
+      function sendHeartToPerson(targetName, onSuccess) {
+        var me = getMe();
+        if (!me) return;
+        if (me.hearts < 1) {
+          showToast("Ürəyin bitib! Ürəklər & Balans bölməsindən ürək al.");
+          openTab("wallet");
+          return;
+        }
+        me.hearts -= 1;
+        saveState();
+        updateHeader();
+        pushMessage(currentRoom, me.username, "💖 " + targetName + " adlı istifadəçiyə 1 Ürək hədiyyə göndərdi!", true, true);
+        showToast("❤️ " + targetName + " üçün 1 Ürək göndərildi!");
+        if (onSuccess) onSuccess();
       }
-      document.getElementById("authScreen").className = "auth-screen hidden";
-      updateHeader();
-      updateVoiceUI();
-      renderDiscover();
-      renderMatches();
-      renderSeats(-1);
-      renderMessages();
-      renderWalletHistory();
-      renderAdmin();
-    }
 
-    enterApp();
+      var micStream = null;
+      var micActive = false;
+
+      function stopMic() {
+        if (micStream) {
+          try { micStream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+          micStream = null;
+        }
+        micActive = false;
+        updateVoiceUI();
+      }
+
+      function toggleMic() {
+        if (micActive) {
+          stopMic();
+          showToast("Mikrofon söndürüldü.");
+          return;
+        }
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+            micStream = stream;
+            micActive = true;
+            updateVoiceUI();
+            showToast("🎙️ Canlı səsli efirə qoşuldun!");
+          }).catch(function () {
+            micActive = true;
+            updateVoiceUI();
+            showToast("🎙️ Səsli otaq rejimi aktivdir.");
+          });
+        } else {
+          micActive = true;
+          updateVoiceUI();
+          showToast("🎙️ Səsli otaq rejimi aktivdir!");
+        }
+      }
+
+      function updateVoiceUI() {
+        var me = getMe();
+        var myName = me ? me.username : "Sən";
+        var speakers = [
+          { name: "Leyla", active: true },
+          { name: "Murad", active: false },
+          { name: "Aysel", active: true }
+        ];
+        if (micActive) speakers.unshift({ name: myName + " (Sən)", active: true });
+
+        var chipsHtml = speakers.map(function (s) {
+          return '<span class="speaker-chip ' + (s.active ? "speaking" : "") + '">' +
+            (s.active ? '<span class="wave"></span>' : '🔇') + ' ' + s.name + '</span>';
+        }).join("");
+
+        var bList = document.getElementById("bottleSpeakersList");
+        var rList = document.getElementById("roomSpeakersList");
+        var bBtn = document.getElementById("toggleBottleMicBtn");
+        var rBtn = document.getElementById("toggleRoomMicBtn");
+        var bStat = document.getElementById("bottleVoiceStatus");
+        var rStat = document.getElementById("roomVoiceStatus");
+
+        if (bList) bList.innerHTML = chipsHtml;
+        if (rList) rList.innerHTML = chipsHtml;
+        if (bBtn) bBtn.textContent = micActive ? "🔴 Mikrofonu Bağla" : "🎤 Mikrofonu Aç";
+        if (rBtn) rBtn.textContent = micActive ? "🔴 Efirdən Çıx" : "🎤 Efirə Qoşul (Mikrofon)";
+        if (bStat) bStat.textContent = micActive ? "Canlı yayımdasan — masadakılar səni eşidir" : "Mikrofon bağlıdır. Danışmaq üçün qoşul!";
+        if (rStat) rStat.textContent = micActive ? "Canlı səsli efirdəsən" : "Səsli efiri dinləyirsən";
+      }
+
+      function testBeep() {
+        try {
+          var AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            var ctx = new AudioCtx();
+            var osc = ctx.createOscillator();
+            osc.frequency.value = 540;
+            osc.connect(ctx.destination);
+            osc.start();
+            setTimeout(function () { try { osc.stop(); } catch (e) {} }, 180);
+          }
+        } catch (e) {}
+        showToast("🔊 Səs çıxışı işləyir!");
+      }
+
+      var bottleTasks = [
+        { cat: "Səmimi", text: "Səsli efirdə indiyə qədər etdiyin ən çılğın qərarı danış!" },
+        { cat: "Cəsarət", text: "Mikrofonu açıb seçilmiş şəxsə 5 saniyəlik tərif de!" },
+        { cat: "Flört", text: "Bakıda ilk görüş üçün ən ideal məkan haradır?" },
+        { cat: "Səmimi", text: "Otaqdakılardan hansına 1 Ürək hədiyyə edərdin?" }
+      ];
+      var bottleAngle = 0;
+      var lastBottleTarget = "Leyla";
+      var lastBottleTask = bottleTasks[0];
+
+      function renderSeats(selectedIdx) {
+        var me = getMe();
+        var seats = [me ? me.username : "Sən", "Leyla", "Murad", "Aysel", "Tural", "Nigar"];
+        var stage = document.getElementById("circleStage");
+        if (!stage) return seats;
+        stage.querySelectorAll(".seat-node").forEach(function (n) { n.remove(); });
+        var radius = 118;
+        seats.forEach(function (name, idx) {
+          var angle = (idx / seats.length) * Math.PI * 2 - Math.PI / 2;
+          var x = 145 + radius * Math.cos(angle);
+          var y = 145 + radius * Math.sin(angle);
+          var node = document.createElement("div");
+          node.className = "seat-node" + (idx === selectedIdx ? " selected" : "");
+          node.style.left = (x / 290) * 100 + "%";
+          node.style.top = (y / 290) * 100 + "%";
+          node.textContent = name;
+          stage.appendChild(node);
+        });
+        return seats;
+      }
+
+      function spinBottle() {
+        var seats = renderSeats(-1);
+        var idx = Math.floor(Math.random() * seats.length);
+        lastBottleTarget = seats[idx];
+        bottleAngle += 1080 + Math.floor(Math.random() * 360);
+        var bEl = document.getElementById("bottleEl");
+        if (bEl) bEl.style.transform = "rotate(" + bottleAngle + "deg)";
+
+        setTimeout(function () {
+          renderSeats(idx);
+          var catSel = document.getElementById("categorySelect");
+          var cat = catSel ? catSel.value : "ALL";
+          var pool = cat === "ALL" ? bottleTasks : bottleTasks.filter(function (t) { return t.cat === cat; });
+          lastBottleTask = pool[Math.floor(Math.random() * pool.length)];
+          var tCat = document.getElementById("taskCategory");
+          var tTar = document.getElementById("taskTarget");
+          var tTxt = document.getElementById("taskText");
+          if (tCat) tCat.textContent = lastBottleTask.cat;
+          if (tTar) tTar.textContent = "Seçilən iştirakçı: " + lastBottleTarget;
+          if (tTxt) tTxt.textContent = lastBottleTask.text;
+        }, 2500);
+      }
+
+      function sendTaskToChat() {
+        var me = getMe();
+        if (!me) return;
+        pushMessage(currentRoom, me.username, "🍾 Butulka (" + lastBottleTarget + "): " + lastBottleTask.text, true, false);
+        openTab("chat");
+      }
+
+      function giftBottleTarget() {
+        sendHeartToPerson(lastBottleTarget);
+      }
+
+      var currentRoom = "Ümumi";
+      var chatData = {
+        "Ümumi": [
+          { sender: "Leyla", text: "Axşamınız xeyir! Səsli efirə kim qoşulur?", time: "03:10", me: false, gift: false },
+          { sender: "Murad", text: "Butulka masasında maraqlı suallar var 🍾", time: "03:12", me: false, gift: false }
+        ],
+        "Gecə Söhbətləri": [
+          { sender: "Nigar", text: "Gecə yarısı Bakı sakitliyi bir başqadır ✨", time: "03:18", me: false, gift: false }
+        ],
+        "VIP Lounge": [
+          { sender: "Leyla", text: "VIP otağa xoş gəldiniz! Ürək göndərənlər ön sırada görünür.", time: "03:00", me: false, gift: true }
+        ]
+      };
+
+      function selectRoom(roomName, el) {
+        document.querySelectorAll(".room-chip").forEach(function (c) { c.classList.remove("active"); });
+        if (el) el.classList.add("active");
+        currentRoom = roomName;
+        var vRoom = document.getElementById("activeVoiceRoomName");
+        if (vRoom) vRoom.textContent = currentRoom;
+        renderMessages();
+      }
+
+      function renderMessages() {
+        var box = document.getElementById("messagesList");
+        if (!box) return;
+        var list = chatData[currentRoom] || [];
+        box.innerHTML = list.map(function (m) {
+          return '<div class="msg ' + (m.me ? "me" : "") + ' ' + (m.gift ? "heart-gift" : "") + '">' +
+            '<div class="msg-meta"><strong>' + m.sender + '</strong> • ' + m.time + '</div>' +
+            '<div>' + m.text + '</div></div>';
+        }).join("");
+        box.scrollTop = box.scrollHeight;
+      }
+
+      function pushMessage(room, sender, text, me, gift) {
+        if (!chatData[room]) chatData[room] = [];
+        var now = new Date().toTimeString().slice(0, 5);
+        chatData[room].push({ sender: sender, text: text, time: now, me: !!me, gift: !!gift });
+        if (room === currentRoom) renderMessages();
+      }
+
+      function handleSendChat() {
+        var inp = document.getElementById("chatInput");
+        var txt = inp && inp.value ? inp.value.trim() : "";
+        if (!txt) return;
+        var me = getMe();
+        if (!me) return;
+        pushMessage(currentRoom, me.username, txt, true, false);
+        inp.value = "";
+      }
+
+      function submitTopup() {
+        var me = getMe();
+        if (!me) return;
+        var amtEl = document.getElementById("topupAmount");
+        var noteEl = document.getElementById("topupNote");
+        var amt = parseFloat(amtEl && amtEl.value ? amtEl.value : "8") || 8;
+        var note = (noteEl && noteEl.value ? noteEl.value : "").trim() || "Kart / M10 köçürməsi";
+        var now = new Date().toTimeString().slice(0, 5);
+
+        state.topups.unshift({
+          id: Date.now(),
+          username: me.username,
+          amount: amt,
+          note: note,
+          status: "pending",
+          time: now
+        });
+        saveState();
+        if (noteEl) noteEl.value = "";
+        renderWalletHistory();
+        renderAdmin();
+        showToast("✅ " + amt + " AZN ödəniş sorğusu göndərildi!");
+      }
+
+      function buyHearts(hearts, cost) {
+        var me = getMe();
+        if (!me) return;
+        if (me.balance < cost) {
+          showToast("Balans kifayət deyil! Əvvəlcə balans artır.");
+          return;
+        }
+        me.balance = Number((me.balance - cost).toFixed(2));
+        me.hearts += hearts;
+        if (hearts >= 30) me.vip = true;
+        saveState();
+        updateHeader();
+        showToast("🎉 +" + hearts + " Ürək hesabına əlavə olundu!");
+      }
+
+      function renderWalletHistory() {
+        var me = getMe();
+        var box = document.getElementById("myTopupHistory");
+        if (!me || !box) return;
+        var mine = state.topups.filter(function (t) { return t.username === me.username; });
+        if (!mine.length) { box.innerHTML = ""; return; }
+        box.innerHTML = '<h4>Ödəniş Sorğularım</h4>' + mine.map(function (t) {
+          var st = t.status === "approved"
+            ? '<span style="color:var(--success);">✓ Təsdiqləndi</span>'
+            : (t.status === "rejected" ? '<span style="color:var(--danger);">✖ Ləğv edildi</span>' : '<span style="color:var(--gold);">⏳ Gözləyir</span>');
+          return '<div class="admin-row"><span><strong>' + t.amount + ' AZN</strong> (' + t.note + ') • ' + t.time + '</span>' + st + '</div>';
+        }).join("");
+      }
+
+      function approveTopup(id) {
+        for (var i = 0; i < state.topups.length; i++) {
+          if (state.topups[i].id === id && state.topups[i].status === "pending") {
+            state.topups[i].status = "approved";
+            for (var u = 0; u < state.users.length; u++) {
+              if (state.users[u].username === state.topups[i].username) {
+                state.users[u].balance = Number((state.users[u].balance + state.topups[i].amount).toFixed(2));
+              }
+            }
+          }
+        }
+        saveState(); updateHeader(); renderAdmin();
+        showToast("Ödəniş təsdiqləndi!");
+      }
+
+      function rejectTopup(id) {
+        for (var i = 0; i < state.topups.length; i++) {
+          if (state.topups[i].id === id) state.topups[i].status = "rejected";
+        }
+        saveState(); renderAdmin();
+        showToast("Sorğu rədd edildi.");
+      }
+
+      function adminAddBal(uname) {
+        state.users.forEach(function (u) { if (u.username === uname) u.balance += 8; });
+        saveState(); updateHeader(); renderAdmin();
+        showToast(uname + " balansına +8 AZN əlavə edildi!");
+      }
+
+      function adminAddHeart(uname) {
+        state.users.forEach(function (u) { if (u.username === uname) u.hearts += 10; });
+        saveState(); updateHeader(); renderAdmin();
+        showToast(uname + " hesabına +10 Ürək əlavə edildi!");
+      }
+
+      function adminToggleBan(uname) {
+        state.users.forEach(function (u) { if (u.username === uname) u.banned = !u.banned; });
+        saveState(); renderAdmin();
+      }
+
+      function renderAdmin() {
+        var me = getMe();
+        if (!me || !me.isAdmin) return;
+
+        var topupsBox = document.getElementById("adminTopupsList");
+        if (topupsBox) {
+          if (!state.topups.length) {
+            topupsBox.innerHTML = '<p style="font-size:13px;color:var(--muted);">Sorğu yoxdur.</p>';
+          } else {
+            topupsBox.innerHTML = state.topups.map(function (t) {
+              var actions = t.status === "pending"
+                ? '<button type="button" class="btn btn-cyan" data-action="approve-topup" data-id="' + t.id + '">✓ Təsdiqlə</button> ' +
+                  '<button type="button" class="btn btn-danger" data-action="reject-topup" data-id="' + t.id + '">✖ Rədd et</button>'
+                : '<span style="color:var(--muted);">' + (t.status === "approved" ? "Təsdiqlənib" : "Rədd edilib") + '</span>';
+              return '<div class="admin-row"><div><strong>' + t.username + '</strong> — <span style="color:var(--gold);">' + t.amount + ' AZN</span><div style="font-size:11px;color:var(--muted);">' + t.note + ' • ' + t.time + '</div></div><div>' + actions + '</div></div>';
+            }).join("");
+          }
+        }
+
+        var usersBox = document.getElementById("adminUsersList");
+        if (usersBox) {
+          usersBox.innerHTML = state.users.map(function (u) {
+            var safeUname = escAttr(u.username);
+            return '<div class="admin-row">' +
+              '<div><strong>' + u.username + '</strong> (' + u.age + ', ' + u.city + ')' +
+              '<div style="font-size:11px;color:var(--muted);">Balans: ' + u.balance + ' AZN • Ürək: ' + u.hearts + '</div></div>' +
+              '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
+                '<button type="button" class="btn btn-gold" data-action="admin-bal" data-name="' + safeUname + '">+8 AZN</button>' +
+                '<button type="button" class="btn btn-cyan" data-action="admin-heart" data-name="' + safeUname + '">+10 ❤️</button>' +
+                (!u.isAdmin ? '<button type="button" class="btn btn-danger" data-action="admin-ban" data-name="' + safeUname + '">' + (u.banned ? "Bloku Aç" : "Blokla") + '</button>' : '') +
+              '</div></div>';
+          }).join("");
+        }
+      }
+
+      function saveProfile() {
+        var me = getMe();
+        if (!me) return;
+        var ageEl = document.getElementById("profAge");
+        var cityEl = document.getElementById("profCity");
+        var bioEl = document.getElementById("profBio");
+        var age = parseInt(ageEl && ageEl.value ? ageEl.value : "20", 10) || 20;
+        if (age < 20) { showToast("Yaş ən azı 20 olmalıdır!"); return; }
+        me.age = age;
+        if (cityEl) me.city = cityEl.value;
+        if (bioEl) me.bio = bioEl.value.trim();
+        saveState();
+        updateHeader();
+        showToast("Profil yeniləndi!");
+      }
+
+      function updateHeader() {
+        var me = getMe();
+        if (!me) return;
+        var uBadge = document.getElementById("userBadge");
+        var bDisp = document.getElementById("balDisplay");
+        var hDisp = document.getElementById("heartsDisplay");
+        var aBtn = document.getElementById("adminNavBtn");
+        var pName = document.getElementById("profName");
+        var pAge = document.getElementById("profAge");
+        var pCity = document.getElementById("profCity");
+        var pBio = document.getElementById("profBio");
+
+        if (uBadge) uBadge.textContent = (me.vip ? "👑 " : "👤 ") + me.username;
+        if (bDisp) bDisp.textContent = Number(me.balance).toFixed(2);
+        if (hDisp) hDisp.textContent = me.hearts;
+        if (aBtn) aBtn.style.display = me.isAdmin ? "block" : "none";
+
+        if (pName) pName.value = me.username;
+        if (pAge) pAge.value = me.age;
+        if (pCity) pCity.value = me.city;
+        if (pBio) pBio.value = me.bio;
+      }
+
+      function enterApp() {
+        var me = getMe();
+        var authEl = document.getElementById("authScreen");
+        if (!me) {
+          if (authEl) authEl.className = "auth-screen";
+          return;
+        }
+        if (authEl) authEl.className = "auth-screen hidden";
+        updateHeader();
+        updateVoiceUI();
+        renderDiscover();
+        renderMatches();
+        renderSeats(-1);
+        renderMessages();
+        renderWalletHistory();
+        renderAdmin();
+      }
+
+      document.addEventListener("click", function (e) {
+        var btn = e.target.closest("button");
+        if (!btn) return;
+        var act = btn.getAttribute("data-action");
+        if (!act) return;
+        if (act === "next") nextDiscover();
+        else if (act === "like") likeDiscover(parseInt(btn.getAttribute("data-id"), 10));
+        else if (act === "heart") heartDiscover(parseInt(btn.getAttribute("data-id"), 10));
+        else if (act === "chat" || act === "match-chat") chatDiscover(btn.getAttribute("data-name"));
+        else if (act === "match-heart") sendHeartToPerson(btn.getAttribute("data-name"));
+        else if (act === "approve-topup") approveTopup(parseInt(btn.getAttribute("data-id"), 10));
+        else if (act === "reject-topup") rejectTopup(parseInt(btn.getAttribute("data-id"), 10));
+        else if (act === "admin-bal") adminAddBal(btn.getAttribute("data-name"));
+        else if (act === "admin-heart") adminAddHeart(btn.getAttribute("data-name"));
+        else if (act === "admin-ban") adminToggleBan(btn.getAttribute("data-name"));
+      });
+
+      window.switchAuthTab = switchAuthTab;
+      window.doLogin = doLogin;
+      window.doRegister = doRegister;
+      window.doLogout = doLogout;
+      window.openTab = openTab;
+      window.renderDiscover = renderDiscover;
+      window.nextDiscover = nextDiscover;
+      window.likeDiscover = likeDiscover;
+      window.heartDiscover = heartDiscover;
+      window.chatDiscover = chatDiscover;
+      window.sendHeartToPerson = sendHeartToPerson;
+      window.toggleMic = toggleMic;
+      window.testBeep = testBeep;
+      window.spinBottle = spinBottle;
+      window.sendTaskToChat = sendTaskToChat;
+      window.giftBottleTarget = giftBottleTarget;
+      window.selectRoom = selectRoom;
+      window.handleSendChat = handleSendChat;
+      window.submitTopup = submitTopup;
+      window.buyHearts = buyHearts;
+      window.approveTopup = approveTopup;
+      window.rejectTopup = rejectTopup;
+      window.adminAddBal = adminAddBal;
+      window.adminAddHeart = adminAddHeart;
+      window.adminToggleBan = adminToggleBan;
+      window.saveProfile = saveProfile;
+
+      enterApp();
+    })();
   </script>
 </body>
 </html>
