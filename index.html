@@ -513,7 +513,7 @@
   <div class="toast" id="toastBox"></div>
 
   <script>
-    var STORAGE_KEY = "baki_geceleri_v5";
+    var STORAGE_KEY = "baki_geceleri_v6";
     var ADMIN_USER = "admin";
     var ADMIN_PASS = "admin2026";
 
@@ -731,6 +731,10 @@
     var matches = [];
     var discoverIdx = 0;
 
+    function escAttr(str) {
+      return String(str).replace(/\/g, "\\").replace(/'/g, "\'");
+    }
+
     function renderDiscover() {
       var city = document.getElementById("cityFilter").value;
       var minAge = parseInt(document.getElementById("ageFilter").value, 10) || 20;
@@ -744,6 +748,7 @@
       }
       var p = list[discoverIdx % list.length];
       var tagsHtml = p.tags.map(function (t) { return '<span class="tag">#' + t + '</span>'; }).join("");
+      var safeName = escAttr(p.name);
       card.innerHTML =
         '<div style="display:flex;justify-content:space-between;align-items:start;">' +
           '<div class="avatar-circle">' + p.avatar + '</div>' +
@@ -757,7 +762,7 @@
           '<button type="button" class="btn" onclick="nextDiscover()">✖ Keç</button>' +
           '<button type="button" class="btn btn-primary" onclick="likeDiscover(' + p.id + ')">💚 Bəyən</button>' +
           '<button type="button" class="btn btn-gold" onclick="heartDiscover(' + p.id + ')">❤️ Ürək At</button>' +
-          '<button type="button" class="btn btn-cyan" onclick="chatDiscover('' + p.name + '')">💬 Yaz</button>' +
+          '<button type="button" class="btn btn-cyan" onclick="chatDiscover('' + safeName + '')">💬 Yaz</button>' +
         '</div>';
     }
 
@@ -794,10 +799,11 @@
         return;
       }
       box.innerHTML = matches.map(function (m) {
+        var safeName = escAttr(m.name);
         return '<div class="match-card"><span>' + m.avatar + ' <strong>' + m.name + '</strong> (' + m.city + ')</span>' +
           '<div style="display:flex;gap:6px;">' +
-          '<button type="button" class="btn btn-gold" onclick="sendHeartToPerson('' + m.name + '')">❤️ Ürək</button>' +
-          '<button type="button" class="btn btn-cyan" onclick="chatDiscover('' + m.name + '')">Yaz</button></div></div>';
+          '<button type="button" class="btn btn-gold" onclick="sendHeartToPerson('' + safeName + '')">❤️ Ürək</button>' +
+          '<button type="button" class="btn btn-cyan" onclick="chatDiscover('' + safeName + '')">Yaz</button></div></div>';
       }).join("");
     }
 
@@ -938,6 +944,7 @@
 
     function sendTaskToChat() {
       var me = getMe();
+      if (!me) return;
       pushMessage(currentRoom, me.username, "🍾 Butulka (" + lastBottleTarget + "): " + lastBottleTask.text, true, false);
       openTab("chat");
     }
@@ -991,12 +998,14 @@
       var txt = inp.value.trim();
       if (!txt) return;
       var me = getMe();
+      if (!me) return;
       pushMessage(currentRoom, me.username, txt, true, false);
       inp.value = "";
     }
 
     function submitTopup() {
       var me = getMe();
+      if (!me) return;
       var amt = parseFloat(document.getElementById("topupAmount").value) || 8;
       var note = document.getElementById("topupNote").value.trim() || "Kart / M10 köçürməsi";
       var now = new Date().toTimeString().slice(0, 5);
@@ -1018,6 +1027,7 @@
 
     function buyHearts(hearts, cost) {
       var me = getMe();
+      if (!me) return;
       if (me.balance < cost) {
         showToast("Balans kifayət deyil! Əvvəlcə balans artır.");
         return;
@@ -1103,13 +1113,14 @@
 
       var usersBox = document.getElementById("adminUsersList");
       usersBox.innerHTML = state.users.map(function (u) {
+        var safeUname = escAttr(u.username);
         return '<div class="admin-row">' +
           '<div><strong>' + u.username + '</strong> (' + u.age + ', ' + u.city + ')' +
           '<div style="font-size:11px;color:var(--muted);">Balans: ' + u.balance + ' AZN • Ürək: ' + u.hearts + '</div></div>' +
           '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
-            '<button type="button" class="btn btn-gold" onclick="adminAddBal('' + u.username + '')">+8 AZN</button>' +
-            '<button type="button" class="btn btn-cyan" onclick="adminAddHeart('' + u.username + '')">+10 ❤️</button>' +
-            (!u.isAdmin ? '<button type="button" class="btn btn-danger" onclick="adminToggleBan('' + u.username + '')">' + (u.banned ? "Bloku Aç" : "Blokla") + '</button>' : '') +
+            '<button type="button" class="btn btn-gold" onclick="adminAddBal('' + safeUname + '')">+8 AZN</button>' +
+            '<button type="button" class="btn btn-cyan" onclick="adminAddHeart('' + safeUname + '')">+10 ❤️</button>' +
+            (!u.isAdmin ? '<button type="button" class="btn btn-danger" onclick="adminToggleBan('' + safeUname + '')">' + (u.banned ? "Bloku Aç" : "Blokla") + '</button>' : '') +
           '</div></div>';
       }).join("");
     }
